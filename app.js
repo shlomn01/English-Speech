@@ -173,6 +173,9 @@
     const permitted = await requestMicPermission();
     if (!permitted) return;
 
+    // Stop any TTS that might interfere with the microphone
+    if (speechSynth) speechSynth.cancel();
+
     // Cleanup previous
     if (recognition) {
       try { recognition.abort(); } catch (e) { /* ignore */ }
@@ -183,24 +186,27 @@
     recognition.interimResults = false;
     recognition.maxAlternatives = 3;
     recognition.continuous = false;
+
+    let gotResult = false;
     isListening = true;
 
     if (button) button.classList.add("listening");
     updateMicStatus("listening");
 
-    // 10-second timeout
+    // 15-second timeout (generous for slower speakers)
     const timeoutId = setTimeout(() => {
       if (isListening) {
         try { recognition.stop(); } catch (e) { /* ignore */ }
         isListening = false;
         if (button) button.classList.remove("listening");
         updateMicStatus("ready");
-        notify("No speech detected. Tap to try again!");
+        notify("No speech detected. Tap the mic and speak!");
       }
-    }, 10000);
+    }, 15000);
 
     recognition.onresult = (event) => {
       clearTimeout(timeoutId);
+      gotResult = true;
       if (!event.results || !event.results[0]) {
         isListening = false;
         if (button) button.classList.remove("listening");
@@ -223,14 +229,24 @@
       isListening = false;
       if (button) button.classList.remove("listening");
       updateMicStatus("ready");
+
+      if (event.error === "no-speech") {
+        // Silently retry once instead of showing error
+        setTimeout(() => {
+          if (!gotResult) {
+            notify("No speech heard. Tap the mic and start speaking!");
+          }
+        }, 200);
+        return;
+      }
+
       const msgs = {
         "not-allowed": "Mic access denied. Check browser permissions.",
         "network": "Network error. Check your connection.",
-        "no-speech": "No speech detected. Try again!",
         "audio-capture": "No microphone found. Check your device.",
         "aborted": null
       };
-      const msg = msgs[event.error] || "Speech error. Try again!";
+      const msg = msgs[event.error] || "Speech error: " + event.error + ". Try again!";
       if (msg) notify(msg);
     };
 
@@ -247,6 +263,7 @@
       isListening = false;
       if (button) button.classList.remove("listening");
       updateMicStatus("ready");
+      notify("Could not start speech recognition. Try again!");
     }
   }
 
