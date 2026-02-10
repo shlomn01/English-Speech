@@ -1,5 +1,5 @@
 /* ============================================================
-   FREE SPEECH - Fantasy RPG Theme Styles
+   FREE SPEECH v2 - Fantasy RPG Theme Styles
    ============================================================ */
 
 /* ── Reset & Base ─────────────────────────────────────────── */
@@ -53,6 +53,22 @@ body {
     radial-gradient(ellipse at 20% 50%, rgba(106, 90, 205, 0.08) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 20%, rgba(240, 192, 64, 0.05) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 80%, rgba(65, 105, 225, 0.06) 0%, transparent 50%);
+}
+
+/* v2: Animated background shift */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(106, 90, 205, 0.04) 0%, transparent 60%);
+  animation: bgShift 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes bgShift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(30px, -20px); }
 }
 
 #app {
@@ -235,6 +251,21 @@ body {
   animation: listening-pulse 0.8s ease-in-out infinite;
   background: linear-gradient(135deg, #e74c3c, #ff6b6b);
   box-shadow: 0 0 30px rgba(231, 76, 60, 0.7);
+}
+
+/* v2: Speech wave on mic button */
+.btn-speak.listening::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 3px solid rgba(231, 76, 60, 0.4);
+  animation: micWave 1.2s ease-in-out infinite;
+}
+
+@keyframes micWave {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
 @keyframes pulse-glow {
@@ -481,7 +512,8 @@ body {
 .realm-card:hover {
   border-color: var(--gold);
   transform: translateY(-3px);
-  box-shadow: var(--shadow-gold);
+  box-shadow: 0 0 20px rgba(240, 192, 64, 0.4);
+  animation: glowPulse 2s ease-in-out infinite;
 }
 .realm-card.locked {
   opacity: 0.5;
@@ -491,6 +523,7 @@ body {
   transform: none;
   box-shadow: none;
   border-color: var(--border-ornate);
+  animation: none;
 }
 .realm-icon {
   font-size: 2.5rem;
@@ -518,6 +551,24 @@ body {
   position: absolute;
   right: 1rem;
   font-size: 1.5rem;
+}
+
+/* v2: Realm illustration container */
+.realm-illustration {
+  width: 60px;
+  height: 50px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+.realm-illustration svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(240, 192, 64, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(240, 192, 64, 0.5); }
 }
 
 /* ── Game Header ──────────────────────────────────────────── */
@@ -983,6 +1034,11 @@ body {
   border-radius: var(--radius-sm);
   border: 1px solid var(--gold-dark);
   font-family: var(--font-fantasy);
+}
+
+/* v2: Boss portrait SVG container */
+.boss-portrait-svg svg {
+  animation: idleBob 3s ease-in-out infinite;
 }
 
 /* ── Tavern ───────────────────────────────────────────────── */
@@ -1458,6 +1514,277 @@ body {
 @keyframes floatUp {
   0% { transform: translateY(0) scale(1); opacity: 1; }
   100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+}
+
+/* ============================================================
+   v2 NEW ADDITIONS
+   ============================================================ */
+
+/* ── v2: Character Idle Animations ────────────────────────── */
+.npc-portrait-container svg,
+.conv-npc-portrait svg,
+.boss-portrait-svg svg,
+.boss-portrait svg {
+  animation: idleBob 3s ease-in-out infinite;
+}
+
+@keyframes idleBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ── v2: Screen Shake for Attacks ─────────────────────────── */
+.screen-shake {
+  animation: screenShake 0.4s ease;
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* ── v2: Score Breakdown Bars ─────────────────────────────── */
+.score-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--bg-dark);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-ornate);
+}
+
+.score-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.score-bar-label {
+  font-family: var(--font-fantasy);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  width: 85px;
+  text-align: right;
+}
+
+.score-bar-track {
+  flex: 1;
+  height: 18px;
+  background: var(--bg-panel);
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid var(--border-ornate);
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 9px;
+  transition: width 0.8s ease;
+  width: 0%;
+}
+
+.score-bar-fill.relevance {
+  background: linear-gradient(90deg, #4169e1, #5b8dee);
+}
+
+.score-bar-fill.vocabulary {
+  background: linear-gradient(90deg, #6a5acd, #9b88ee);
+}
+
+.score-bar-fill.sentences {
+  background: linear-gradient(90deg, #28a745, #4cce6a);
+}
+
+.score-bar-fill.length {
+  background: linear-gradient(90deg, #e6a817, #ffe680);
+}
+
+.score-bar-value {
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  color: var(--text);
+  width: 40px;
+}
+
+.score-total {
+  text-align: center;
+  margin-top: 0.5rem;
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  color: var(--gold);
+}
+
+/* ── v2: NPC Portrait Panel (slides in from left) ─────────── */
+.npc-portrait-container {
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: slideInLeft 0.5s ease;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.npc-portrait-frame {
+  display: inline-block;
+  padding: 8px;
+  border: 3px solid var(--border-gold);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-gold);
+}
+
+/* ── v2: Conversation UI ──────────────────────────────────── */
+.npc-dialogue {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-ornate);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+  color: var(--text);
+  text-align: center;
+  min-height: 50px;
+  position: relative;
+}
+
+.npc-dialogue::before {
+  content: '\201C';
+  font-size: 2rem;
+  color: var(--gold);
+  position: absolute;
+  top: 0;
+  left: 10px;
+  font-family: serif;
+}
+
+.topic-prompt {
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-panel));
+  border: 2px solid var(--gold-dark);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.topic-prompt p {
+  font-family: var(--font-fantasy);
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+
+.npc-response {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-dark);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--gold);
+  animation: fadeIn 0.4s ease;
+}
+
+/* ── v2: Mic Status Bar ───────────────────────────────────── */
+.mic-status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--bg-dark);
+  z-index: 900;
+  transition: height 0.3s;
+}
+
+.mic-status-bar.active {
+  height: 36px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border-ornate);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.mic-status-text {
+  font-family: var(--font-fantasy);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.mic-status-bar.listening {
+  border-top-color: var(--red);
+}
+
+.mic-status-bar.listening .mic-status-text {
+  color: var(--red);
+}
+
+.mic-status-bar.processing .mic-status-text {
+  color: var(--gold);
+}
+
+/* ── v2: Typing Indicator Dots ────────────────────────────── */
+.typing-dots {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* ── v2: Follow-up Section ────────────────────────────────── */
+.follow-up-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border-ornate);
+}
+
+.follow-up-prompt {
+  font-family: var(--font-fantasy);
+  color: var(--purple);
+  font-style: italic;
+}
+
+/* ── v2: Slash Attack Animation ───────────────────────────── */
+.attack-slash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1500;
+  background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+  animation: slashSwipe 0.4s ease forwards;
+}
+
+@keyframes slashSwipe {
+  from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); }
+  to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
 }
 
 /* ── Responsive ───────────────────────────────────────────── */

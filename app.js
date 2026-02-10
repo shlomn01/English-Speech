@@ -1,14 +1,99 @@
 // ============================================================
-// FREE SPEECH - Game Engine
-// State management, Speech API, game loops, scoring
+// FREE SPEECH v2 - Game Engine
+// Free conversation scoring, state management, game loops
 // ============================================================
 
 (function () {
   "use strict";
 
+  // ── ConversationScorer ─────────────────────────────────────
+  class ConversationScorer {
+    score(spokenText, challenge) {
+      const words = spokenText.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+      const wordCount = words.length;
+      const uniqueWords = new Set(words);
+      const spoken = spokenText.toLowerCase();
+
+      // 1. Topic Relevance (40%)
+      let keywordHits = 0;
+      for (const kw of challenge.topicKeywords) {
+        if (spoken.includes(kw)) keywordHits++;
+      }
+      const expectedMin = Math.min(3, challenge.topicKeywords.length);
+      const relevanceScore = Math.min(100, (keywordHits / expectedMin) * 100);
+
+      // 2. Vocabulary Richness (25%)
+      let vocabScore = Math.min(60, (uniqueWords.size / Math.max(5, wordCount * 0.7)) * 60);
+      let bonusHits = 0;
+      if (challenge.bonusVocab) {
+        for (const bv of challenge.bonusVocab) {
+          if (spoken.includes(bv.toLowerCase())) bonusHits++;
+        }
+        vocabScore += Math.min(40, bonusHits * 15);
+      }
+      vocabScore = Math.min(100, vocabScore);
+
+      // 3. Sentence Quality (20%)
+      const connectors = GAME_DATA.connectors;
+      let connectorCount = 0;
+      for (const c of connectors) {
+        if (spoken.includes(c)) connectorCount++;
+      }
+      const hasCapI = /\bI\b/.test(spokenText);
+      const sentences = spokenText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+      const avgWordsPerSentence = wordCount / Math.max(1, sentences.length);
+      let sentenceScore = 0;
+      sentenceScore += Math.min(40, connectorCount * 15);
+      sentenceScore += avgWordsPerSentence >= 5 ? 30 : avgWordsPerSentence >= 3 ? 15 : 0;
+      sentenceScore += hasCapI ? 10 : 0;
+      sentenceScore += sentences.length >= 2 ? 20 : 0;
+      sentenceScore = Math.min(100, sentenceScore);
+
+      // 4. Speech Length (15%)
+      let lengthScore;
+      if (wordCount < 5) lengthScore = 0;
+      else if (wordCount < 10) lengthScore = 25;
+      else if (wordCount < 20) lengthScore = 60;
+      else if (wordCount < 30) lengthScore = 85;
+      else lengthScore = 100;
+
+      // Final weighted score
+      const finalScore = Math.round(
+        relevanceScore * 0.40 +
+        vocabScore * 0.25 +
+        sentenceScore * 0.20 +
+        lengthScore * 0.15
+      );
+
+      // Stars: >=70 = 3, >=40 = 2, >=15 = 1
+      let stars;
+      if (finalScore >= 70) stars = 3;
+      else if (finalScore >= 40) stars = 2;
+      else if (finalScore >= 15) stars = 1;
+      else stars = 0;
+
+      // Response tier
+      let tier;
+      if (relevanceScore < 15) tier = "off_topic";
+      else if (stars >= 3) tier = "great";
+      else if (stars >= 2) tier = "good";
+      else tier = "weak";
+
+      return {
+        finalScore, stars, tier, wordCount,
+        relevance: Math.round(relevanceScore),
+        vocabulary: Math.round(vocabScore),
+        sentences: Math.round(sentenceScore),
+        length: Math.round(lengthScore),
+        bonusWordsUsed: bonusHits,
+        keywordsHit: keywordHits
+      };
+    }
+  }
+
   // ── State ──────────────────────────────────────────────────
   const DEFAULT_STATE = {
-    character: null,        // { name, class, createdAt }
+    character: null,
     level: 1,
     xp: 0,
     gold: 0,
@@ -22,25 +107,25 @@
     consecutivePerfect: 0,
     bossesDefeated: [],
     achievements: [],
-    inventory: {},          // { itemId: count }
-    equippedItems: {},      // { slot: itemId }
+    inventory: {},
+    equippedItems: {},
     titles: [],
     activeTitle: null,
-    activeEffects: [],      // { effect, remaining }
+    activeEffects: [],
     arenaBest: 0,
     dailyQuests: null,
     dailyQuestDate: null,
+    shopPurchases: 0,
+    wordsSpoken: 0,
+    tavernNpcsVisited: [],
     realmStats: {
-      echo_valley: { completed: 0, perfect: 0 },
-      word_forge: { completed: 0, perfect: 0 },
-      spell_tower: { completed: 0, perfect: 0 },
-      arena: { completed: 0, bestScore: 0 },
+      storytellers_glen: { completed: 0, perfect: 0 },
+      wordsmiths_workshop: { completed: 0, perfect: 0 },
+      council_chamber: { completed: 0, perfect: 0 },
+      quick_wit_arena: { completed: 0, bestScore: 0 },
       dragons_lair: { completed: 0, bossesDefeated: 0 },
-      tavern: { completed: 0, conversationsFinished: 0 }
-    },
-    wordsLearned: [],
-    tavernCompleted: [],
-    shopPurchases: 0
+      tavern: { completed: 0, npcsVisited: [] }
+    }
   };
 
   let state = {};
@@ -51,19 +136,10 @@
   const speechSynth = window.speechSynthesis;
   let recognition = null;
   let isListening = false;
-
-  function initSpeechRecognition() {
-    if (!SpeechRecognition) return null;
-    const r = new SpeechRecognition();
-    r.lang = "en-US";
-    r.interimResults = false;
-    r.maxAlternatives = 3;
-    r.continuous = false;
-    return r;
-  }
+  let micPermissionGranted = null;
 
   function speak(text, callback) {
-    if (!speechSynth) return;
+    if (!speechSynth) { if (callback) callback(); return; }
     speechSynth.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "en-US";
@@ -73,38 +149,93 @@
     speechSynth.speak(utter);
   }
 
-  function startListening(button, callback) {
+  async function requestMicPermission() {
+    if (micPermissionGranted === true) return true;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+      micPermissionGranted = true;
+      return true;
+    } catch (e) {
+      micPermissionGranted = false;
+      notify("Microphone access denied. Please allow mic access in browser settings.");
+      return false;
+    }
+  }
+
+  async function startListening(button, callback) {
     if (!SpeechRecognition) {
-      notify("Speech recognition not supported in this browser. Try Chrome!");
+      notify("Speech recognition not supported. Try Chrome!");
       return;
     }
     if (isListening) return;
 
-    recognition = initSpeechRecognition();
+    const permitted = await requestMicPermission();
+    if (!permitted) return;
+
+    // Cleanup previous
+    if (recognition) {
+      try { recognition.abort(); } catch (e) { /* ignore */ }
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 3;
+    recognition.continuous = false;
     isListening = true;
+
     if (button) button.classList.add("listening");
+    updateMicStatus("listening");
+
+    // 10-second timeout
+    const timeoutId = setTimeout(() => {
+      if (isListening) {
+        try { recognition.stop(); } catch (e) { /* ignore */ }
+        isListening = false;
+        if (button) button.classList.remove("listening");
+        updateMicStatus("ready");
+        notify("No speech detected. Tap to try again!");
+      }
+    }, 10000);
 
     recognition.onresult = (event) => {
+      clearTimeout(timeoutId);
+      if (!event.results || !event.results[0]) {
+        isListening = false;
+        if (button) button.classList.remove("listening");
+        updateMicStatus("ready");
+        return;
+      }
       const results = [];
       for (let i = 0; i < event.results[0].length; i++) {
-        results.push(event.results[0][i].transcript.toLowerCase().trim());
+        results.push(event.results[0][i].transcript.trim());
       }
       isListening = false;
       if (button) button.classList.remove("listening");
+      updateMicStatus("processing");
+      setTimeout(() => updateMicStatus("ready"), 1500);
       if (callback) callback(results);
     };
 
     recognition.onerror = (event) => {
+      clearTimeout(timeoutId);
       isListening = false;
       if (button) button.classList.remove("listening");
-      if (event.error === "no-speech") {
-        notify("No speech detected. Try again!");
-      } else if (event.error !== "aborted") {
-        notify("Could not recognize speech. Try again!");
-      }
+      updateMicStatus("ready");
+      const msgs = {
+        "not-allowed": "Mic access denied. Check browser permissions.",
+        "network": "Network error. Check your connection.",
+        "no-speech": "No speech detected. Try again!",
+        "audio-capture": "No microphone found. Check your device.",
+        "aborted": null
+      };
+      const msg = msgs[event.error] || "Speech error. Try again!";
+      if (msg) notify(msg);
     };
 
     recognition.onend = () => {
+      clearTimeout(timeoutId);
       isListening = false;
       if (button) button.classList.remove("listening");
     };
@@ -112,68 +243,37 @@
     try {
       recognition.start();
     } catch (e) {
+      clearTimeout(timeoutId);
       isListening = false;
       if (button) button.classList.remove("listening");
+      updateMicStatus("ready");
     }
   }
 
   function stopListening() {
     if (recognition && isListening) {
-      recognition.abort();
+      try { recognition.abort(); } catch (e) { /* ignore */ }
       isListening = false;
     }
   }
 
-  // ── Levenshtein Distance ───────────────────────────────────
-  function levenshtein(a, b) {
-    const m = a.length, n = b.length;
-    const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-    for (let i = 0; i <= m; i++) dp[i][0] = i;
-    for (let j = 0; j <= n; j++) dp[0][j] = j;
-    for (let i = 1; i <= m; i++) {
-      for (let j = 1; j <= n; j++) {
-        dp[i][j] = a[i - 1] === b[j - 1]
-          ? dp[i - 1][j - 1]
-          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-      }
+  function updateMicStatus(status) {
+    const bar = document.getElementById("mic-status-bar");
+    if (!bar) return;
+    bar.setAttribute("data-state", status);
+    const label = bar.querySelector(".mic-status-label");
+    if (status === "listening") {
+      bar.classList.add("active", "listening");
+      bar.classList.remove("processing");
+      if (label) label.textContent = "Listening...";
+    } else if (status === "processing") {
+      bar.classList.add("active", "processing");
+      bar.classList.remove("listening");
+      if (label) label.textContent = "Processing...";
+    } else {
+      bar.classList.remove("active", "listening", "processing");
+      if (label) label.textContent = "Ready";
     }
-    return dp[m][n];
-  }
-
-  function similarity(spoken, expected) {
-    const a = spoken.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
-    const b = expected.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
-    if (a === b) return 1;
-    const dist = levenshtein(a, b);
-    const maxLen = Math.max(a.length, b.length);
-    return maxLen === 0 ? 1 : 1 - dist / maxLen;
-  }
-
-  function matchesAny(spoken, acceptList) {
-    const s = spoken.toLowerCase().replace(/[^a-z0-9\s']/g, "").trim();
-    for (const accept of acceptList) {
-      const a = accept.toLowerCase().replace(/[^a-z0-9\s']/g, "").trim();
-      if (s === a) return { match: true, exact: true };
-      if (similarity(s, a) >= 0.8) return { match: true, exact: false };
-    }
-    return { match: false, exact: false };
-  }
-
-  function scoreAnswer(spoken, expected, acceptList) {
-    const s = spoken.toLowerCase().replace(/[^a-z0-9\s']/g, "").trim();
-    const e = expected.toLowerCase().replace(/[^a-z0-9\s']/g, "").trim();
-
-    if (s === e) return 3;
-    if (acceptList) {
-      const m = matchesAny(spoken, acceptList);
-      if (m.exact) return 3;
-      if (m.match) return 2;
-    }
-    const sim = similarity(spoken, expected);
-    if (sim >= 0.85) return 3;
-    if (sim >= 0.65) return 2;
-    if (sim >= 0.45) return 1;
-    return 0;
   }
 
   // ── State Management ───────────────────────────────────────
@@ -184,10 +284,13 @@
         state = { ...DEFAULT_STATE, ...JSON.parse(saved) };
         // Ensure nested objects are merged
         state.realmStats = { ...DEFAULT_STATE.realmStats, ...state.realmStats };
+        // Migrate old saves
+        if (!state.wordsSpoken) state.wordsSpoken = 0;
+        if (!state.tavernNpcsVisited) state.tavernNpcsVisited = [];
         return true;
       }
     } catch (e) { /* ignore */ }
-    state = { ...DEFAULT_STATE };
+    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     return false;
   }
 
@@ -198,7 +301,7 @@
   }
 
   function resetState() {
-    state = { ...DEFAULT_STATE, realmStats: { ...DEFAULT_STATE.realmStats } };
+    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     localStorage.removeItem("freespeech_save");
   }
 
@@ -216,14 +319,12 @@
   }
 
   function addXp(amount, realm) {
-    // Apply class bonus
     if (state.character && GAME_DATA.classes[state.character.class]) {
       const classData = GAME_DATA.classes[state.character.class];
       if (classData.bonus.realm === realm) {
         amount = Math.floor(amount * classData.bonus.xpMultiplier);
       }
     }
-    // Apply XP potion
     const xpEffect = state.activeEffects.find(e => e.effect === "double_xp");
     if (xpEffect) {
       amount *= 2;
@@ -232,11 +333,8 @@
         state.activeEffects = state.activeEffects.filter(e => e !== xpEffect);
       }
     }
-
     state.xp += amount;
-    floatingNumber(`+${amount} XP`, "xp");
-
-    // Check level up
+    floatingNumber("+" + amount + " XP", "xp");
     while (state.level < 50 && state.xp >= getXpForLevel(state.level + 1)) {
       state.level++;
       showLevelUp(state.level);
@@ -257,7 +355,7 @@
     }
     state.gold += amount;
     state.goldEarned += amount;
-    floatingNumber(`+${amount} Gold`, "gold");
+    floatingNumber("+" + amount + " Gold", "gold");
     updateMapUI();
     saveState();
     checkAchievement("gold_hoarder", state.goldEarned >= 1000);
@@ -267,7 +365,6 @@
   function updateStreak() {
     const today = new Date().toDateString();
     if (state.lastPlayDate === today) return;
-
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     if (state.lastPlayDate === yesterday.toDateString()) {
@@ -277,7 +374,6 @@
     }
     state.lastPlayDate = today;
     saveState();
-
     checkAchievement("streak_3", state.streak >= 3);
     checkAchievement("streak_7", state.streak >= 7);
     checkAchievement("streak_30", state.streak >= 30);
@@ -291,7 +387,7 @@
     for (let i = 0; i < maxHp; i++) {
       const span = document.createElement("span");
       span.className = "heart" + (i >= hp ? " lost" : "");
-      span.textContent = "\u2764\uFE0F";
+      span.innerHTML = SPRITES.icon.heart(i < hp, 20);
       container.appendChild(span);
     }
   }
@@ -310,7 +406,6 @@
   function generateDailyQuests() {
     const today = new Date().toDateString();
     if (state.dailyQuestDate === today && state.dailyQuests) return;
-
     const templates = [...GAME_DATA.dailyQuests];
     const shuffled = templates.sort(() => Math.random() - 0.5).slice(0, 3);
     state.dailyQuests = shuffled.map(t => {
@@ -335,13 +430,12 @@
         q.progress = Math.min(q.target, q.progress + amount);
         if (q.progress >= q.target) {
           q.completed = true;
-          notify(`Quest Complete: ${q.description}!`);
+          notify("Quest Complete: " + q.description + "!");
           addXp(q.xpReward, null);
           addGold(q.goldReward);
         }
       }
     });
-    // Check if all daily quests completed
     if (state.dailyQuests.every(q => q.completed)) {
       checkAchievement("daily_hero", true);
     }
@@ -371,8 +465,8 @@
     const toast = document.getElementById("achievement-toast");
     const iconEl = document.getElementById("achievement-toast-icon");
     const nameEl = document.getElementById("achievement-toast-name");
-    iconEl.textContent = GAME_DATA.icons[achievement.icon] || "\u2B50";
-    nameEl.textContent = achievement.name;
+    if (iconEl) iconEl.textContent = "\u2B50";
+    if (nameEl) nameEl.textContent = achievement.name;
     toast.style.display = "flex";
     toast.style.animation = "none";
     void toast.offsetWidth;
@@ -422,13 +516,12 @@
     let unlockText = "";
     for (const [realm, lvl] of Object.entries(GAME_DATA.realmUnlocks)) {
       if (lvl === level) {
-        const names = { echo_valley: "Echo Valley", word_forge: "Word Forge", spell_tower: "Spell Tower", arena: "The Arena", dragons_lair: "Dragon's Lair", tavern: "The Tavern" };
-        unlockText += `New realm unlocked: ${names[realm]}! `;
+        const name = GAME_DATA.realmNames[realm] || realm;
+        unlockText += "New realm unlocked: " + name + "! ";
       }
     }
     document.getElementById("level-up-unlocks").textContent = unlockText || "Keep adventuring!";
 
-    // Particles
     const particleContainer = document.getElementById("level-up-particles");
     particleContainer.innerHTML = "";
     const colors = ["#f0c040", "#6a5acd", "#4169e1", "#e74c3c", "#28a745"];
@@ -443,36 +536,7 @@
       p.style.animationDelay = Math.random() * 0.5 + "s";
       particleContainer.appendChild(p);
     }
-
     overlay.style.display = "flex";
-  }
-
-  function updateMapUI() {
-    if (!state.character) return;
-    const classData = GAME_DATA.classes[state.character.class];
-    document.getElementById("map-avatar").textContent = GAME_DATA.icons[classData.avatar] || "";
-    document.getElementById("map-name").textContent = state.character.name;
-    document.getElementById("map-level").textContent = "Lv." + state.level;
-    document.getElementById("map-gold").textContent = state.gold;
-    document.getElementById("map-streak").textContent = state.streak;
-
-    const xpProg = getXpProgress();
-    document.getElementById("map-xp-bar").style.width = xpProg.percent + "%";
-    document.getElementById("map-xp-text").textContent = `${xpProg.progress}/${xpProg.needed} XP`;
-
-    // Update realm locks
-    document.querySelectorAll(".realm-card").forEach(card => {
-      const realm = card.dataset.realm;
-      const required = GAME_DATA.realmUnlocks[realm] || 1;
-      const lock = card.querySelector(".realm-lock");
-      if (state.level >= required) {
-        card.classList.remove("locked");
-        if (lock) lock.style.display = "none";
-      } else {
-        card.classList.add("locked");
-        if (lock) lock.style.display = "block";
-      }
-    });
   }
 
   function renderStars(count) {
@@ -509,6 +573,48 @@
     return false;
   }
 
+  // ── Map UI ─────────────────────────────────────────────────
+  function updateMapUI() {
+    if (!state.character) return;
+    const classData = GAME_DATA.classes[state.character.class];
+
+    // Set SVG avatar
+    const avatarEl = document.getElementById("map-avatar");
+    if (avatarEl) avatarEl.innerHTML = SPRITES.hero[state.character.class](28);
+
+    document.getElementById("map-name").textContent = state.character.name;
+    document.getElementById("map-level").textContent = "Lv." + state.level;
+    document.getElementById("map-gold").textContent = state.gold;
+    document.getElementById("map-streak").textContent = state.streak;
+
+    const xpProg = getXpProgress();
+    document.getElementById("map-xp-bar").style.width = xpProg.percent + "%";
+    document.getElementById("map-xp-text").textContent = xpProg.progress + "/" + xpProg.needed + " XP";
+
+    // Update realm locks
+    document.querySelectorAll(".realm-card").forEach(card => {
+      const realm = card.dataset.realm;
+      if (!realm) return;
+      const required = GAME_DATA.realmUnlocks[realm] || 1;
+      const lock = card.querySelector(".realm-lock");
+      if (state.level >= required) {
+        card.classList.remove("locked");
+        if (lock) lock.style.display = "none";
+      } else {
+        card.classList.add("locked");
+        if (lock) lock.style.display = "block";
+      }
+    });
+
+    // Inject realm illustrations
+    for (const [realmId, fn] of Object.entries(SPRITES.realm)) {
+      const illEl = document.getElementById("realm-ill-" + realmId);
+      if (illEl && !illEl.innerHTML) {
+        illEl.innerHTML = fn(120);
+      }
+    }
+  }
+
   // ── Screen: Title ──────────────────────────────────────────
   function initTitle() {
     const hasSave = loadState();
@@ -528,11 +634,23 @@
       updateMapUI();
       showScreen("map");
     });
+
+    // Inject title emblem
+    const emblemEl = document.getElementById("title-emblem");
+    if (emblemEl) {
+      emblemEl.innerHTML = SPRITES.icon.mic(48);
+    }
   }
 
   // ── Screen: Character Creation ─────────────────────────────
   function initCharacterCreation() {
     let selectedClass = null;
+
+    // Inject class portraits
+    for (const cls of ["bard", "wizard", "knight"]) {
+      const el = document.getElementById("class-portrait-" + cls);
+      if (el) el.innerHTML = SPRITES.hero[cls](100);
+    }
 
     document.querySelectorAll(".class-card").forEach(card => {
       card.addEventListener("click", () => {
@@ -563,7 +681,7 @@
       saveState();
       generateDailyQuests();
       updateMapUI();
-      notify(`Welcome, ${state.character.name} the ${GAME_DATA.classes[selectedClass].name}!`);
+      notify("Welcome, " + state.character.name + " the " + GAME_DATA.classes[selectedClass].name + "!");
       showScreen("map");
     });
   }
@@ -574,7 +692,7 @@
       card.addEventListener("click", () => {
         if (card.classList.contains("locked")) {
           const realm = card.dataset.realm;
-          notify(`Reach Level ${GAME_DATA.realmUnlocks[realm]} to unlock this realm!`);
+          notify("Reach Level " + GAME_DATA.realmUnlocks[realm] + " to unlock this realm!");
           return;
         }
         const realm = card.dataset.realm;
@@ -602,462 +720,273 @@
 
   function navigateToRealm(realm) {
     switch (realm) {
-      case "echo_valley": initEchoValley(); showScreen("echo"); break;
-      case "word_forge": initWordForge(); showScreen("wordforge"); break;
-      case "spell_tower": initSpellTower(); showScreen("spelltower"); break;
-      case "arena": initArena(); showScreen("arena"); break;
-      case "dragons_lair": initDragonsLair(); showScreen("boss"); break;
-      case "tavern": initTavern(); showScreen("tavern"); break;
+      case "storytellers_glen":
+        initConversation("storytellers_glen");
+        break;
+      case "wordsmiths_workshop":
+        initConversation("wordsmiths_workshop");
+        break;
+      case "council_chamber":
+        initConversation("council_chamber");
+        break;
+      case "quick_wit_arena":
+        initArena();
+        showScreen("arena");
+        break;
+      case "dragons_lair":
+        initDragonsLair();
+        showScreen("boss");
+        break;
+      case "tavern":
+        initTavern();
+        showScreen("tavern");
+        break;
     }
   }
 
-  // ── Echo Valley ────────────────────────────────────────────
-  let echoState = {};
+  // ── Conversation Screen (Glen, Workshop, Council) ──────────
+  let convState = {};
 
-  function initEchoValley() {
-    echoState = { difficulty: "beginner", hp: 5, maxHp: 5 };
-    renderHearts("echo-hearts", echoState.hp, echoState.maxHp);
-    loadEchoChallenge();
+  function initConversation(realmId) {
+    const challenges = GAME_DATA[realmId];
+    const challenge = challenges[Math.floor(Math.random() * challenges.length)];
 
-    // Difficulty buttons
-    document.querySelectorAll("#echo-difficulty .btn-diff").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#echo-difficulty .btn-diff").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        echoState.difficulty = btn.dataset.diff;
-        loadEchoChallenge();
-      });
-    });
+    convState = {
+      realm: realmId,
+      challenge: challenge,
+      phase: "greeting",
+      hp: 5,
+      maxHp: 5,
+      followUpDone: false
+    };
+
+    // Set screen title
+    document.getElementById("conv-realm-title").textContent = GAME_DATA.realmNames[realmId];
+
+    // Set NPC portrait
+    const npcMap = { storytellers_glen: "bard_npc", wordsmiths_workshop: "merchant", council_chamber: "elder_sage" };
+    const npcKey = npcMap[realmId] || "innkeeper";
+    document.getElementById("conv-npc-portrait").innerHTML = '<div class="npc-portrait-frame">' + SPRITES.npc[npcKey](140) + '</div>';
+
+    // Show NPC greeting
+    document.getElementById("conv-npc-dialogue").textContent = challenge.npcGreeting;
+    document.getElementById("conv-topic-text").textContent = challenge.prompt;
+
+    // Reset UI elements
+    document.getElementById("conv-score-breakdown").style.display = "none";
+    document.getElementById("conv-npc-response").style.display = "none";
+    document.getElementById("conv-followup").style.display = "none";
+    document.getElementById("conv-result").style.display = "none";
+    document.getElementById("conv-next").style.display = "none";
+    document.getElementById("conv-speak").style.display = "";
+    document.getElementById("conv-mic-status").textContent = "Tap to speak";
+
+    // Reset score bars
+    document.getElementById("relevance-bar").style.width = "0%";
+    document.getElementById("vocabulary-bar").style.width = "0%";
+    document.getElementById("sentences-bar").style.width = "0%";
+    document.getElementById("length-bar").style.width = "0%";
+    document.getElementById("relevance-value").textContent = "0";
+    document.getElementById("vocabulary-value").textContent = "0";
+    document.getElementById("sentences-value").textContent = "0";
+    document.getElementById("length-value").textContent = "0";
+
+    renderHearts("conv-hearts", convState.hp, convState.maxHp);
+
+    // Speak greeting via TTS
+    speak(challenge.npcGreeting);
+
+    showScreen("conversation");
   }
 
-  function loadEchoChallenge() {
-    const items = GAME_DATA.pronunciation[echoState.difficulty];
-    const item = items[Math.floor(Math.random() * items.length)];
-    echoState.current = item;
+  function handleConversationSpeech(results) {
+    const spokenText = results[0];
+    const scorer = new ConversationScorer();
+    const challenge = convState.challenge;
 
-    document.getElementById("echo-text").textContent = item.text;
-    document.getElementById("echo-phonetic").textContent = item.phonetic ? `[ ${item.phonetic} ]` : "";
-    document.getElementById("echo-result").style.display = "none";
-    document.getElementById("echo-next").style.display = "none";
-  }
-
-  function setupEchoHandlers() {
-    document.getElementById("echo-listen").addEventListener("click", () => {
-      if (echoState.current) speak(echoState.current.text);
-    });
-
-    document.getElementById("echo-speak").addEventListener("click", () => {
-      startListening(document.getElementById("echo-speak"), (results) => {
-        handleEchoResult(results);
-      });
-    });
-
-    document.getElementById("echo-next").addEventListener("click", () => {
-      if (echoState.hp <= 0) {
-        echoState.hp = 5;
-        renderHearts("echo-hearts", echoState.hp, echoState.maxHp);
-      }
-      loadEchoChallenge();
-    });
-
-    document.getElementById("echo-back").addEventListener("click", () => {
-      showScreen("map");
-      updateMapUI();
-    });
-  }
-
-  function handleEchoResult(results) {
-    const expected = echoState.current.text;
-    let bestScore = 0;
-    let bestResult = results[0];
-
-    for (const r of results) {
-      const s = scoreAnswer(r, expected);
-      if (s > bestScore) {
-        bestScore = s;
-        bestResult = r;
-      }
-    }
-
-    const resultEl = document.getElementById("echo-result");
-    const resultText = document.getElementById("echo-result-text");
-    const resultStars = document.getElementById("echo-result-stars");
-    const resultXp = document.getElementById("echo-result-xp");
-
-    resultEl.style.display = "block";
-    document.getElementById("echo-next").style.display = "block";
-
-    if (bestScore >= 1) {
-      const xpReward = bestScore * 15;
-      const goldReward = bestScore * 5;
-
-      if (bestScore === 3) {
-        resultText.textContent = `Perfect! You said: "${bestResult}"`;
-        resultText.className = "result-text correct";
-        state.consecutivePerfect++;
-        state.realmStats.echo_valley.perfect++;
-      } else if (bestScore === 2) {
-        resultText.textContent = `Close! You said: "${bestResult}"`;
-        resultText.className = "result-text partial";
-        state.consecutivePerfect = 0;
-      } else {
-        resultText.textContent = `Partial match. You said: "${bestResult}"`;
-        resultText.className = "result-text partial";
-        state.consecutivePerfect = 0;
-      }
-
-      resultStars.textContent = renderStars(bestScore);
-      resultXp.textContent = `+${xpReward} XP  +${goldReward} Gold`;
-
-      state.challengesCompleted++;
-      state.realmStats.echo_valley.completed++;
-      addXp(xpReward, "echo_valley");
-      addGold(goldReward);
-      updateDailyQuest("echo_valley", 1);
-      updateDailyQuest("any", 1);
-      if (bestScore === 3) updateDailyQuest("perfect", 1);
-
-      checkAchievement("first_word", true);
-      checkAchievement("echo_novice", state.realmStats.echo_valley.completed >= 10);
-      checkAchievement("echo_master", state.realmStats.echo_valley.completed >= 50);
-      checkAchievement("perfect_10", state.consecutivePerfect >= 10);
-      if (bestScore === 3) {
-        state.perfectCount++;
-        checkAchievement("three_stars", state.perfectCount >= 25);
-      }
+    let scoreData;
+    if (convState.phase === "greeting") {
+      scoreData = scorer.score(spokenText, challenge);
+      convState.phase = "scored";
+    } else if (convState.phase === "followup_speaking") {
+      scoreData = scorer.score(spokenText, challenge.followUp);
+      convState.phase = "followup_scored";
     } else {
-      resultText.textContent = `Not quite. You said: "${bestResult}" — Expected: "${expected}"`;
-      resultText.className = "result-text incorrect";
-      resultStars.textContent = renderStars(0);
-      resultXp.textContent = "";
+      return;
+    }
+
+    // Track words spoken
+    state.wordsSpoken = (state.wordsSpoken || 0) + scoreData.wordCount;
+    updateDailyQuest("words_spoken", scoreData.wordCount);
+
+    // Show score breakdown with animated bars
+    showScoreBreakdown(scoreData);
+
+    // Show NPC response
+    const responses = convState.phase === "followup_scored"
+      ? (challenge.followUp.npcResponses || challenge.npcResponses)
+      : challenge.npcResponses;
+    const responseText = responses[scoreData.tier];
+    document.getElementById("conv-npc-response-text").textContent = responseText;
+    document.getElementById("conv-npc-response").style.display = "block";
+    speak(responseText);
+
+    // Show result
+    showConversationResult(scoreData, spokenText);
+
+    // Check for follow-up availability
+    if (convState.phase === "scored" && challenge.followUp && !convState.followUpDone) {
+      document.getElementById("conv-followup").style.display = "block";
+      document.getElementById("conv-followup-text").textContent = challenge.followUp.npcLine;
+    }
+
+    // Award XP and gold
+    const xpReward = Math.floor(scoreData.finalScore / 10) * 5 + scoreData.stars * 10;
+    const goldReward = scoreData.stars * 5 + Math.floor(scoreData.bonusWordsUsed * 3);
+
+    if (scoreData.stars > 0) {
+      addXp(xpReward, convState.realm);
+      addGold(goldReward);
+      state.challengesCompleted++;
+      state.realmStats[convState.realm].completed++;
+      if (scoreData.stars === 3) {
+        state.consecutivePerfect++;
+        state.perfectCount++;
+        state.realmStats[convState.realm].perfect++;
+        updateDailyQuest("perfect", 1);
+      } else {
+        state.consecutivePerfect = 0;
+      }
+      updateDailyQuest(convState.realm, 1);
+      updateDailyQuest("any", 1);
+
+      document.getElementById("conv-result-xp").textContent = "+" + xpReward + " XP  +" + goldReward + " Gold";
+    } else {
+      document.getElementById("conv-result-xp").textContent = "";
       state.consecutivePerfect = 0;
 
-      // Check shield potion
+      // Lose heart on 0 stars
       if (hasItem("shield")) {
         useItem("shield");
         notify("Shield Potion absorbed the damage!");
       } else {
-        echoState.hp--;
-        loseHeart("echo-hearts", echoState.hp, echoState.maxHp);
-        if (echoState.hp <= 0) {
-          notify("You've run out of hearts! Starting fresh...");
-        }
+        convState.hp--;
+        loseHeart("conv-hearts", convState.hp, convState.maxHp);
+        if (convState.hp <= 0) notify("Out of hearts! Starting fresh...");
       }
     }
+
+    // Achievement checks
+    checkAchievement("first_word", true);
+    checkAchievement("eloquent", scoreData.finalScore >= 90);
+    checkAchievement("chatterbox", (state.wordsSpoken || 0) >= 1000);
+    const realmStats = state.realmStats[convState.realm];
+    if (convState.realm === "storytellers_glen") {
+      checkAchievement("storyteller_10", realmStats.completed >= 10);
+      checkAchievement("storyteller_50", realmStats.completed >= 50);
+    } else if (convState.realm === "wordsmiths_workshop") {
+      checkAchievement("wordsmith_10", realmStats.completed >= 10);
+      checkAchievement("wordsmith_50", realmStats.completed >= 50);
+    } else if (convState.realm === "council_chamber") {
+      checkAchievement("council_10", realmStats.completed >= 10);
+    }
+    checkAchievement("three_stars_25", state.perfectCount >= 25);
+
+    // Show next button, hide mic
+    document.getElementById("conv-next").style.display = "block";
+    document.getElementById("conv-speak").style.display = "none";
+
     saveState();
   }
 
-  // ── Word Forge ─────────────────────────────────────────────
-  let wordForgeState = {};
+  function showScoreBreakdown(scoreData) {
+    document.getElementById("conv-score-breakdown").style.display = "block";
 
-  function initWordForge() {
-    wordForgeState = { category: "everyday", hp: 5, maxHp: 5, hintLevel: 0 };
-    renderHearts("wordforge-hearts", wordForgeState.hp, wordForgeState.maxHp);
-    loadWordForgeChallenge();
+    // Animate bars after a short delay
+    setTimeout(() => {
+      document.getElementById("relevance-bar").style.width = scoreData.relevance + "%";
+      document.getElementById("vocabulary-bar").style.width = scoreData.vocabulary + "%";
+      document.getElementById("sentences-bar").style.width = scoreData.sentences + "%";
+      document.getElementById("length-bar").style.width = scoreData.length + "%";
+    }, 100);
 
-    document.querySelectorAll("#wordforge-categories .btn-diff").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#wordforge-categories .btn-diff").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        wordForgeState.category = btn.dataset.cat;
-        loadWordForgeChallenge();
-      });
-    });
+    document.getElementById("relevance-value").textContent = scoreData.relevance + "%";
+    document.getElementById("vocabulary-value").textContent = scoreData.vocabulary + "%";
+    document.getElementById("sentences-value").textContent = scoreData.sentences + "%";
+    document.getElementById("length-value").textContent = scoreData.length + "%";
   }
 
-  function loadWordForgeChallenge() {
-    const items = GAME_DATA.vocabulary[wordForgeState.category];
-    const item = items[Math.floor(Math.random() * items.length)];
-    wordForgeState.current = item;
-    wordForgeState.hintLevel = 0;
+  function showConversationResult(scoreData, spokenText) {
+    document.getElementById("conv-result").style.display = "block";
+    const resultStars = document.getElementById("conv-result-stars");
+    resultStars.textContent = renderStars(scoreData.stars) + " Score: " + scoreData.finalScore + "/100";
 
-    document.getElementById("wordforge-definition").textContent = item.definition;
-    document.getElementById("wordforge-hint-text").style.display = "none";
-    document.getElementById("wordforge-result").style.display = "none";
-    document.getElementById("wordforge-next").style.display = "none";
+    const resultGold = document.getElementById("conv-result-gold");
+    if (resultGold) {
+      resultGold.textContent = 'You said: "' + spokenText + '"';
+      resultGold.className = "result-gold " + (scoreData.stars >= 3 ? "correct" : scoreData.stars >= 1 ? "partial" : "incorrect");
+    }
   }
 
-  function setupWordForgeHandlers() {
-    document.getElementById("wordforge-hint-btn").addEventListener("click", () => {
-      const item = wordForgeState.current;
-      wordForgeState.hintLevel++;
-      const hintEl = document.getElementById("wordforge-hint-text");
-      if (wordForgeState.hintLevel === 1) {
-        hintEl.textContent = item.hint;
-      } else if (wordForgeState.hintLevel === 2) {
-        hintEl.textContent = `${item.syllables} syllable(s) - ${item.hint}`;
-      } else {
-        hintEl.textContent = `The word is: ${item.word}`;
-      }
-      hintEl.style.display = "block";
-    });
+  function handleFollowUp() {
+    convState.phase = "followup_speaking";
+    convState.followUpDone = true;
 
-    document.getElementById("wordforge-speak").addEventListener("click", () => {
-      startListening(document.getElementById("wordforge-speak"), (results) => {
-        handleWordForgeResult(results);
+    const followUp = convState.challenge.followUp;
+    document.getElementById("conv-npc-dialogue").textContent = followUp.npcLine;
+    document.getElementById("conv-topic-text").textContent = "Respond to the follow-up question";
+
+    // Reset score display
+    document.getElementById("conv-score-breakdown").style.display = "none";
+    document.getElementById("conv-npc-response").style.display = "none";
+    document.getElementById("conv-result").style.display = "none";
+    document.getElementById("conv-followup").style.display = "none";
+    document.getElementById("conv-next").style.display = "none";
+    document.getElementById("conv-speak").style.display = "";
+    document.getElementById("conv-mic-status").textContent = "Tap to speak";
+
+    // Reset bar widths
+    document.getElementById("relevance-bar").style.width = "0%";
+    document.getElementById("vocabulary-bar").style.width = "0%";
+    document.getElementById("sentences-bar").style.width = "0%";
+    document.getElementById("length-bar").style.width = "0%";
+
+    speak(followUp.npcLine);
+    updateDailyQuest("followup", 1);
+  }
+
+  function setupConversationHandlers() {
+    document.getElementById("conv-speak").addEventListener("click", () => {
+      startListening(document.getElementById("conv-speak"), (results) => {
+        handleConversationSpeech(results);
       });
     });
 
-    document.getElementById("wordforge-next").addEventListener("click", () => {
-      if (wordForgeState.hp <= 0) {
-        wordForgeState.hp = 5;
-        renderHearts("wordforge-hearts", wordForgeState.hp, wordForgeState.maxHp);
+    document.getElementById("conv-next").addEventListener("click", () => {
+      if (convState.hp <= 0) {
+        convState.hp = 5;
+        renderHearts("conv-hearts", convState.hp, convState.maxHp);
       }
-      loadWordForgeChallenge();
+      initConversation(convState.realm);
     });
 
-    document.getElementById("wordforge-back").addEventListener("click", () => {
+    document.getElementById("conv-back").addEventListener("click", () => {
       showScreen("map");
       updateMapUI();
     });
-  }
 
-  function handleWordForgeResult(results) {
-    const item = wordForgeState.current;
-    let bestScore = 0;
-    let bestResult = results[0];
-
-    for (const r of results) {
-      const s = scoreAnswer(r, item.word);
-      if (s > bestScore) {
-        bestScore = s;
-        bestResult = r;
-      }
-    }
-
-    const resultEl = document.getElementById("wordforge-result");
-    const resultText = document.getElementById("wordforge-result-text");
-    const resultStars = document.getElementById("wordforge-result-stars");
-    const resultXp = document.getElementById("wordforge-result-xp");
-
-    resultEl.style.display = "block";
-    document.getElementById("wordforge-next").style.display = "block";
-
-    // Reduce score if hints were used
-    const adjustedScore = Math.max(0, bestScore - wordForgeState.hintLevel);
-    const finalScore = Math.max(adjustedScore, bestScore > 0 ? 1 : 0);
-
-    if (bestScore >= 1) {
-      const xpReward = finalScore * 20;
-      const goldReward = finalScore * 7;
-
-      if (bestScore === 3 && wordForgeState.hintLevel === 0) {
-        resultText.textContent = `Perfect! "${bestResult}" is correct!`;
-        resultText.className = "result-text correct";
-        state.consecutivePerfect++;
-        state.realmStats.word_forge.perfect++;
-      } else {
-        resultText.textContent = `Correct! The word is "${item.word}". You said: "${bestResult}"`;
-        resultText.className = "result-text correct";
-        state.consecutivePerfect = 0;
-      }
-
-      resultStars.textContent = renderStars(finalScore);
-      resultXp.textContent = `+${xpReward} XP  +${goldReward} Gold`;
-
-      state.challengesCompleted++;
-      state.realmStats.word_forge.completed++;
-      if (!state.wordsLearned.includes(item.word)) state.wordsLearned.push(item.word);
-      addXp(xpReward, "word_forge");
-      addGold(goldReward);
-      updateDailyQuest("word_forge", 1);
-      updateDailyQuest("any", 1);
-      if (finalScore === 3) updateDailyQuest("perfect", 1);
-
-      checkAchievement("first_word", true);
-      checkAchievement("wordsmith", state.wordsLearned.length >= 25);
-      checkAchievement("lexicon_legend", state.wordsLearned.length >= 100);
-      if (finalScore === 3) {
-        state.perfectCount++;
-        checkAchievement("three_stars", state.perfectCount >= 25);
-      }
-    } else {
-      resultText.textContent = `Incorrect. The answer was: "${item.word}". You said: "${bestResult}"`;
-      resultText.className = "result-text incorrect";
-      resultStars.textContent = renderStars(0);
-      resultXp.textContent = "";
-      state.consecutivePerfect = 0;
-
-      if (hasItem("shield")) {
-        useItem("shield");
-        notify("Shield Potion absorbed the damage!");
-      } else {
-        wordForgeState.hp--;
-        loseHeart("wordforge-hearts", wordForgeState.hp, wordForgeState.maxHp);
-        if (wordForgeState.hp <= 0) {
-          notify("You've run out of hearts! Starting fresh...");
-        }
-      }
-    }
-    saveState();
-  }
-
-  // ── Spell Tower ────────────────────────────────────────────
-  let spellTowerState = {};
-
-  function initSpellTower() {
-    spellTowerState = { mode: "scrambled", hp: 5, maxHp: 5 };
-    renderHearts("spelltower-hearts", spellTowerState.hp, spellTowerState.maxHp);
-    loadSpellTowerChallenge();
-
-    document.querySelectorAll("#spelltower-modes .btn-diff").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#spelltower-modes .btn-diff").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        spellTowerState.mode = btn.dataset.mode;
-        loadSpellTowerChallenge();
-      });
+    // Follow-up click: clicking on the follow-up section triggers follow-up
+    document.getElementById("conv-followup").addEventListener("click", () => {
+      handleFollowUp();
     });
   }
 
-  function loadSpellTowerChallenge() {
-    const wordsEl = document.getElementById("spelltower-words");
-    const instructionEl = document.getElementById("spelltower-instruction");
-    const grammarEl = document.getElementById("spelltower-grammar");
-
-    if (spellTowerState.mode === "scrambled") {
-      const items = GAME_DATA.sentences.scrambled;
-      const item = items[Math.floor(Math.random() * items.length)];
-      spellTowerState.current = item;
-      spellTowerState.answer = item.answer;
-
-      instructionEl.textContent = "Arrange these words into a correct sentence:";
-      grammarEl.textContent = item.grammar;
-      grammarEl.style.display = "inline-block";
-
-      // Shuffle words
-      const shuffled = [...item.words].sort(() => Math.random() - 0.5);
-      wordsEl.innerHTML = "";
-      shuffled.forEach(word => {
-        const span = document.createElement("span");
-        span.className = "scrambled-word";
-        span.textContent = word;
-        wordsEl.appendChild(span);
-      });
-    } else {
-      const items = GAME_DATA.sentences.fillInBlank;
-      const item = items[Math.floor(Math.random() * items.length)];
-      spellTowerState.current = item;
-      spellTowerState.answer = item.answer;
-
-      instructionEl.textContent = "Say the missing word:";
-      grammarEl.textContent = item.hint;
-      grammarEl.style.display = "inline-block";
-
-      wordsEl.innerHTML = "";
-      const span = document.createElement("span");
-      span.className = "scrambled-word";
-      span.textContent = item.sentence;
-      span.style.fontSize = "1rem";
-      span.style.animation = "none";
-      wordsEl.appendChild(span);
-    }
-
-    document.getElementById("spelltower-result").style.display = "none";
-    document.getElementById("spelltower-next").style.display = "none";
-  }
-
-  function setupSpellTowerHandlers() {
-    document.getElementById("spelltower-speak").addEventListener("click", () => {
-      startListening(document.getElementById("spelltower-speak"), (results) => {
-        handleSpellTowerResult(results);
-      });
-    });
-
-    document.getElementById("spelltower-next").addEventListener("click", () => {
-      if (spellTowerState.hp <= 0) {
-        spellTowerState.hp = 5;
-        renderHearts("spelltower-hearts", spellTowerState.hp, spellTowerState.maxHp);
-      }
-      loadSpellTowerChallenge();
-    });
-
-    document.getElementById("spelltower-back").addEventListener("click", () => {
-      showScreen("map");
-      updateMapUI();
-    });
-  }
-
-  function handleSpellTowerResult(results) {
-    const answer = spellTowerState.answer;
-    let bestScore = 0;
-    let bestResult = results[0];
-
-    for (const r of results) {
-      const s = scoreAnswer(r, answer);
-      if (s > bestScore) {
-        bestScore = s;
-        bestResult = r;
-      }
-    }
-
-    const resultEl = document.getElementById("spelltower-result");
-    const resultText = document.getElementById("spelltower-result-text");
-    const resultStars = document.getElementById("spelltower-result-stars");
-    const resultXp = document.getElementById("spelltower-result-xp");
-
-    resultEl.style.display = "block";
-    document.getElementById("spelltower-next").style.display = "block";
-
-    if (bestScore >= 1) {
-      const xpReward = bestScore * 25;
-      const goldReward = bestScore * 8;
-
-      if (bestScore === 3) {
-        resultText.textContent = `Perfect! "${bestResult}"`;
-        resultText.className = "result-text correct";
-        state.consecutivePerfect++;
-        state.realmStats.spell_tower.perfect++;
-      } else {
-        resultText.textContent = `Close! You said: "${bestResult}" — Expected: "${answer}"`;
-        resultText.className = "result-text partial";
-        state.consecutivePerfect = 0;
-      }
-
-      resultStars.textContent = renderStars(bestScore);
-      resultXp.textContent = `+${xpReward} XP  +${goldReward} Gold`;
-
-      state.challengesCompleted++;
-      state.realmStats.spell_tower.completed++;
-      addXp(xpReward, "spell_tower");
-      addGold(goldReward);
-      updateDailyQuest("spell_tower", 1);
-      updateDailyQuest("any", 1);
-      if (bestScore === 3) updateDailyQuest("perfect", 1);
-
-      checkAchievement("first_word", true);
-      checkAchievement("spell_weaver", state.realmStats.spell_tower.completed >= 20);
-      if (bestScore === 3) {
-        state.perfectCount++;
-        checkAchievement("three_stars", state.perfectCount >= 25);
-      }
-    } else {
-      resultText.textContent = `Incorrect. Expected: "${answer}". You said: "${bestResult}"`;
-      resultText.className = "result-text incorrect";
-      resultStars.textContent = renderStars(0);
-      resultXp.textContent = "";
-      state.consecutivePerfect = 0;
-
-      if (hasItem("shield")) {
-        useItem("shield");
-        notify("Shield Potion absorbed the damage!");
-      } else {
-        spellTowerState.hp--;
-        loseHeart("spelltower-hearts", spellTowerState.hp, spellTowerState.maxHp);
-        if (spellTowerState.hp <= 0) {
-          notify("You've run out of hearts! Starting fresh...");
-        }
-      }
-    }
-    saveState();
-  }
-
-  // ── The Arena ──────────────────────────────────────────────
+  // ── Quick Wit Arena ────────────────────────────────────────
   let arenaState = {};
   let arenaTimer = null;
 
   function initArena() {
-    arenaState = { score: 0, combo: 0, maxCombo: 0, correct: 0, total: 0, timeLeft: 60, running: false };
+    arenaState = { score: 0, combo: 0, maxCombo: 0, correct: 0, total: 0, timeLeft: 60, running: false, current: null };
     document.getElementById("arena-best").textContent = state.arenaBest;
     document.getElementById("arena-score").textContent = "0";
     document.getElementById("arena-combo").textContent = "";
@@ -1070,8 +999,6 @@
   function startArenaRound() {
     arenaState.running = true;
     arenaState.timeLeft = 60;
-
-    // Check time crystal
     if (hasItem("extra_time")) {
       useItem("extra_time");
       arenaState.timeLeft += 15;
@@ -1081,6 +1008,7 @@
     document.getElementById("arena-start").style.display = "none";
     document.getElementById("arena-challenge").style.display = "block";
     document.getElementById("arena-results").style.display = "none";
+    document.getElementById("arena-timer").textContent = arenaState.timeLeft;
 
     loadArenaChallenge();
     arenaTimer = setInterval(() => {
@@ -1093,36 +1021,29 @@
   }
 
   function loadArenaChallenge() {
-    const challenges = GAME_DATA.arena.challenges;
+    const challenges = GAME_DATA.quick_wit_arena;
     const challenge = challenges[Math.floor(Math.random() * challenges.length)];
     arenaState.current = challenge;
-
-    document.getElementById("arena-type-badge").textContent = challenge.type.toUpperCase();
-    document.getElementById("arena-question").textContent = challenge.question;
+    document.getElementById("arena-type-badge").textContent = "TOPIC";
+    document.getElementById("arena-question").textContent = challenge.prompt;
     document.getElementById("arena-feedback").style.display = "none";
   }
 
   function handleArenaResult(results) {
     if (!arenaState.running) return;
-    const challenge = arenaState.current;
-    let matched = false;
+    const scorer = new ConversationScorer();
+    const scoreData = scorer.score(results[0], arenaState.current);
 
-    for (const r of results) {
-      const m = matchesAny(r, challenge.accept);
-      if (m.match) {
-        matched = true;
-        break;
-      }
-    }
-
+    state.wordsSpoken = (state.wordsSpoken || 0) + scoreData.wordCount;
     arenaState.total++;
+
     const feedback = document.getElementById("arena-feedback");
     feedback.style.display = "block";
     feedback.style.animation = "none";
     void feedback.offsetWidth;
     feedback.style.animation = "";
 
-    if (matched) {
+    if (scoreData.finalScore >= 40) {
       arenaState.combo++;
       arenaState.correct++;
       if (arenaState.combo > arenaState.maxCombo) arenaState.maxCombo = arenaState.combo;
@@ -1132,26 +1053,23 @@
       else if (arenaState.combo >= 7) multiplier = 3;
       else if (arenaState.combo >= 3) multiplier = 2;
 
-      const points = 50 * multiplier;
+      const points = Math.floor(scoreData.finalScore * multiplier);
       arenaState.score += points;
 
-      feedback.textContent = `Correct! +${points} pts` + (multiplier > 1 ? ` (${multiplier}x combo!)` : "");
+      feedback.textContent = renderStars(scoreData.stars) + " +" + points + " pts" + (multiplier > 1 ? " (" + multiplier + "x!)" : "");
       feedback.className = "arena-feedback correct";
-
       document.getElementById("arena-score").textContent = arenaState.score;
-      document.getElementById("arena-combo").textContent = arenaState.combo >= 2 ? `${arenaState.combo}x Combo!` : "";
-
-      updateDailyQuest("streak", arenaState.combo);
+      document.getElementById("arena-combo").textContent = arenaState.combo >= 2 ? arenaState.combo + "x Combo!" : "";
     } else {
       arenaState.combo = 0;
-      feedback.textContent = `Wrong! Answer: "${challenge.answer}"`;
+      feedback.textContent = "Too brief! Speak more about the topic.";
       feedback.className = "arena-feedback incorrect";
       document.getElementById("arena-combo").textContent = "";
     }
 
     setTimeout(() => {
       if (arenaState.running) loadArenaChallenge();
-    }, 800);
+    }, 1200);
   }
 
   function endArena() {
@@ -1164,36 +1082,24 @@
     document.getElementById("arena-final-score").textContent = arenaState.score + " Points!";
 
     const statsGrid = document.getElementById("arena-stats-grid");
-    statsGrid.innerHTML = `
-      <div class="arena-stat-item">
-        <div class="stat-value">${arenaState.correct}</div>
-        <div class="stat-label">Correct</div>
-      </div>
-      <div class="arena-stat-item">
-        <div class="stat-value">${arenaState.total}</div>
-        <div class="stat-label">Attempted</div>
-      </div>
-      <div class="arena-stat-item">
-        <div class="stat-value">${arenaState.maxCombo}x</div>
-        <div class="stat-label">Best Combo</div>
-      </div>
-    `;
+    statsGrid.innerHTML =
+      '<div class="arena-stat-item"><div class="stat-value">' + arenaState.correct + '</div><div class="stat-label">Good Answers</div></div>' +
+      '<div class="arena-stat-item"><div class="stat-value">' + arenaState.total + '</div><div class="stat-label">Attempted</div></div>' +
+      '<div class="arena-stat-item"><div class="stat-value">' + arenaState.maxCombo + 'x</div><div class="stat-label">Best Combo</div></div>';
 
-    // Update records
     if (arenaState.score > state.arenaBest) {
       state.arenaBest = arenaState.score;
-      state.realmStats.arena.bestScore = arenaState.score;
+      state.realmStats.quick_wit_arena.bestScore = arenaState.score;
       notify("New personal best!");
     }
-    state.realmStats.arena.completed++;
+    state.realmStats.quick_wit_arena.completed++;
     state.challengesCompleted += arenaState.correct;
 
-    // Rewards
     const xpReward = Math.floor(arenaState.score / 5);
     const goldReward = Math.floor(arenaState.score / 10);
-    addXp(xpReward, "arena");
+    addXp(xpReward, "quick_wit_arena");
     addGold(goldReward);
-    updateDailyQuest("arena", arenaState.score);
+    updateDailyQuest("quick_wit_arena", arenaState.score);
     updateDailyQuest("any", arenaState.correct);
 
     checkAchievement("speed_demon", arenaState.score >= 500);
@@ -1244,17 +1150,16 @@
       const isLocked = state.level < unlockLevel;
 
       card.className = "boss-card" + (isLocked ? " locked" : "") + (isDefeated ? " defeated" : "");
-      card.innerHTML = `
-        <div class="boss-emoji">${GAME_DATA.icons[boss.image]}</div>
-        <h4>${boss.name}</h4>
-        <p>${boss.title}</p>
-        ${isDefeated ? '<div class="defeated-badge">\u2705 Defeated</div>' : ""}
-        ${isLocked ? `<div style="color:var(--text-dim);font-size:0.8rem;margin-top:0.3rem;">\uD83D\uDD12 Level ${unlockLevel}</div>` : ""}
-      `;
+      card.innerHTML =
+        '<div class="boss-emoji">' + SPRITES.boss[boss.id](80) + '</div>' +
+        '<h4>' + boss.name + '</h4>' +
+        '<p>' + boss.title + '</p>' +
+        (isDefeated ? '<div class="defeated-badge">Defeated</div>' : "") +
+        (isLocked ? '<div style="color:var(--text-dim);font-size:0.8rem;margin-top:0.3rem;">Level ' + unlockLevel + '</div>' : "");
 
       card.addEventListener("click", () => {
         if (isLocked) {
-          notify(`Reach Level ${unlockLevel} to challenge this boss!`);
+          notify("Reach Level " + unlockLevel + " to challenge this boss!");
           return;
         }
         startBossBattle(boss);
@@ -1270,55 +1175,52 @@
 
   function startBossBattle(boss) {
     bossState = {
-      boss,
+      boss: boss,
       bossHp: boss.hp,
       bossMaxHp: boss.hp,
       playerHp: 5,
       maxHp: 5,
-      challengeIndex: 0,
-      challenges: [...boss.challenges].sort(() => Math.random() - 0.5)
+      roundIndex: 0,
+      rounds: [...boss.rounds]
     };
 
     document.getElementById("boss-selection").style.display = "none";
     document.getElementById("boss-battle").style.display = "block";
     document.getElementById("boss-end").style.display = "none";
 
-    document.getElementById("boss-portrait").textContent = GAME_DATA.icons[boss.image];
+    // Set boss portrait using SVG sprite
+    document.getElementById("boss-portrait").innerHTML = SPRITES.boss[boss.id](180);
     document.getElementById("boss-portrait").style.color = boss.color;
     document.getElementById("boss-name").textContent = boss.name;
     document.getElementById("boss-name").style.color = boss.color;
     document.getElementById("boss-title-text").textContent = boss.title;
     document.getElementById("boss-hp-bar").style.width = "100%";
-    document.getElementById("boss-hp-text").textContent = `${boss.hp}/${boss.hp}`;
+    document.getElementById("boss-hp-text").textContent = boss.hp + "/" + boss.hp;
 
     renderHearts("boss-hearts", bossState.playerHp, bossState.maxHp);
-    document.getElementById("boss-dialogue").textContent = `"${boss.intro}"`;
+    document.getElementById("boss-dialogue").textContent = '"' + boss.intro + '"';
 
-    setTimeout(() => loadBossChallenge(), 1500);
+    speak(boss.intro, () => loadBossRound());
   }
 
-  function loadBossChallenge() {
-    if (bossState.challengeIndex >= bossState.challenges.length) {
-      // Ran out of challenges, boss survives
-      bossState.challengeIndex = 0;
-      bossState.challenges.sort(() => Math.random() - 0.5);
+  function loadBossRound() {
+    if (bossState.roundIndex >= bossState.rounds.length) {
+      bossState.roundIndex = 0;
     }
-    const challenge = bossState.challenges[bossState.challengeIndex];
-    document.getElementById("boss-question").textContent = challenge.question;
+    const round = bossState.rounds[bossState.roundIndex];
+    document.getElementById("boss-question").textContent = round.npcLine;
+    document.getElementById("boss-dialogue").textContent = '"' + round.npcLine + '"';
     document.getElementById("boss-feedback").style.display = "none";
+
+    speak(round.npcLine);
   }
 
   function handleBossResult(results) {
-    const challenge = bossState.challenges[bossState.challengeIndex];
-    let matched = false;
+    const round = bossState.rounds[bossState.roundIndex];
+    const scorer = new ConversationScorer();
+    const scoreData = scorer.score(results[0], round);
 
-    for (const r of results) {
-      const m = matchesAny(r, challenge.accept);
-      if (m.match) {
-        matched = true;
-        break;
-      }
-    }
+    state.wordsSpoken = (state.wordsSpoken || 0) + scoreData.wordCount;
 
     const feedback = document.getElementById("boss-feedback");
     feedback.style.display = "block";
@@ -1326,18 +1228,25 @@
     void feedback.offsetWidth;
     feedback.style.animation = "";
 
-    if (matched) {
-      // Player attacks boss
-      const damage = Math.floor(bossState.bossMaxHp / bossState.challenges.length) + 5;
+    if (scoreData.finalScore >= 30) {
+      // Player damages boss
+      const damage = Math.max(5, Math.floor(scoreData.finalScore * bossState.bossMaxHp / 100));
       bossState.bossHp = Math.max(0, bossState.bossHp - damage);
       const hpPercent = (bossState.bossHp / bossState.bossMaxHp) * 100;
       document.getElementById("boss-hp-bar").style.width = hpPercent + "%";
-      document.getElementById("boss-hp-text").textContent = `${bossState.bossHp}/${bossState.bossMaxHp}`;
+      document.getElementById("boss-hp-text").textContent = bossState.bossHp + "/" + bossState.bossMaxHp;
 
-      feedback.textContent = `\u2694\uFE0F HIT! -${damage} damage!`;
+      feedback.textContent = renderStars(scoreData.stars) + " HIT! -" + damage + " damage! (Score: " + scoreData.finalScore + ")";
       feedback.className = "battle-feedback hit";
-      floatingNumber(`-${damage}`, "damage");
+      floatingNumber("-" + damage, "damage");
       updateDailyQuest("boss", damage);
+
+      // Screen shake
+      const bossScreen = document.getElementById("screen-boss");
+      if (bossScreen) {
+        bossScreen.classList.add("screen-shake");
+        setTimeout(() => bossScreen.classList.remove("screen-shake"), 400);
+      }
 
       if (bossState.bossHp <= 0) {
         setTimeout(() => endBossBattle(true), 1000);
@@ -1349,17 +1258,16 @@
 
       if (hasItem("shield")) {
         useItem("shield");
-        feedback.textContent = `${attackMsg} Shield Potion blocks the attack!`;
+        feedback.textContent = attackMsg + " Shield blocks it!";
         feedback.className = "battle-feedback hit";
       } else {
         bossState.playerHp--;
         loseHeart("boss-hearts", bossState.playerHp, bossState.maxHp);
-        feedback.textContent = `${attackMsg} Answer was: "${challenge.accept[0]}"`;
+        feedback.textContent = attackMsg + " (Score: " + scoreData.finalScore + " -- too low!)";
         feedback.className = "battle-feedback miss";
-        floatingNumber("-1 \u2764\uFE0F", "damage");
+        floatingNumber("-1 heart", "damage");
 
         if (bossState.playerHp <= 0) {
-          // Check phoenix feather
           if (hasItem("revive")) {
             useItem("revive");
             bossState.playerHp = bossState.maxHp;
@@ -1373,13 +1281,13 @@
       }
     }
 
-    bossState.challengeIndex++;
+    bossState.roundIndex++;
     setTimeout(() => {
-      document.getElementById("boss-dialogue").textContent = matched
-        ? `"${bossState.boss.victory.substring(0, 40)}... Gah!"`
-        : `"${bossState.boss.attacks[Math.floor(Math.random() * bossState.boss.attacks.length)]}"`;
-      loadBossChallenge();
-    }, 1200);
+      document.getElementById("boss-dialogue").textContent = scoreData.finalScore >= 30
+        ? '"' + bossState.boss.victory.substring(0, 40) + '... Gah!"'
+        : '"' + bossState.boss.attacks[Math.floor(Math.random() * bossState.boss.attacks.length)] + '"';
+      loadBossRound();
+    }, 1500);
   }
 
   function endBossBattle(victory) {
@@ -1395,14 +1303,13 @@
       endIcon.textContent = "\uD83C\uDFC6";
       endTitle.textContent = "VICTORY!";
       endTitle.style.color = "var(--gold)";
-      endMessage.textContent = `"${bossState.boss.victory}"`;
+      endMessage.textContent = '"' + bossState.boss.victory + '"';
 
       const rewards = bossState.boss.rewards;
-      endRewards.innerHTML = `
-        <div class="reward-item">\u2B50 +${rewards.xp} XP</div>
-        <div class="reward-item">\uD83E\uDE99 +${rewards.gold} Gold</div>
-        <div class="reward-item">\uD83C\uDFC5 Title: ${rewards.title}</div>
-      `;
+      endRewards.innerHTML =
+        '<div class="reward-item">+' + rewards.xp + ' XP</div>' +
+        '<div class="reward-item">+' + rewards.gold + ' Gold</div>' +
+        '<div class="reward-item">Title: ' + rewards.title + '</div>';
 
       if (!state.bossesDefeated.includes(bossState.boss.id)) {
         state.bossesDefeated.push(bossState.boss.id);
@@ -1424,8 +1331,8 @@
       endIcon.textContent = "\uD83D\uDC80";
       endTitle.textContent = "DEFEATED";
       endTitle.style.color = "var(--red)";
-      endMessage.textContent = `"${bossState.boss.defeat}"`;
-      endRewards.innerHTML = '<div class="reward-item">Try again when you\'re stronger!</div>';
+      endMessage.textContent = '"' + bossState.boss.defeat + '"';
+      endRewards.innerHTML = '<div class="reward-item">Try again when you are stronger!</div>';
     }
     saveState();
   }
@@ -1451,106 +1358,153 @@
   let tavernState = {};
 
   function initTavern() {
-    const grid = document.getElementById("npc-grid");
-    grid.innerHTML = "";
+    // Inject NPC portraits and completion badges into the static HTML NPC cards
+    const npcGrid = document.getElementById("npc-grid");
+    if (!npcGrid) return;
 
-    const npcEmojis = { innkeeper: "\uD83C\uDF7A", merchant: "\uD83D\uDCB0", bard: "\uD83C\uDFB6", quest_giver: "\uD83E\uDDD9" };
+    GAME_DATA.tavern.forEach(npcData => {
+      const card = npcGrid.querySelector('[data-npc="' + npcData.npc + '"]');
+      if (!card) return;
 
-    GAME_DATA.tavern.scenarios.forEach(scenario => {
-      const card = document.createElement("div");
-      card.className = "npc-card";
-      const completed = state.tavernCompleted.includes(scenario.id);
-      card.innerHTML = `
-        <div class="npc-emoji">${npcEmojis[scenario.id] || "\uD83E\uDDD1"}</div>
-        <h4>${scenario.name}</h4>
-        <p>${scenario.description}</p>
-        ${completed ? '<p style="color:var(--green);font-size:0.8rem;">\u2705 Completed</p>' : ""}
-      `;
-      card.addEventListener("click", () => startConversation(scenario));
-      grid.appendChild(card);
+      // Inject portrait
+      const portraitEl = card.querySelector(".npc-portrait");
+      if (portraitEl) {
+        portraitEl.innerHTML = SPRITES.npc[npcData.npc](120);
+      }
+
+      // Show name and description
+      const h4 = card.querySelector("h4");
+      if (h4) h4.textContent = npcData.name;
+      const p = card.querySelector("p");
+      if (p) p.textContent = npcData.description;
+
+      // Show completed badge
+      const visited = (state.tavernNpcsVisited || []).includes(npcData.id);
+      let badge = card.querySelector(".completed-badge");
+      if (visited && !badge) {
+        badge = document.createElement("p");
+        badge.className = "completed-badge";
+        badge.style.color = "var(--green)";
+        badge.style.fontSize = "0.8rem";
+        badge.textContent = "Visited";
+        card.appendChild(badge);
+      } else if (!visited && badge) {
+        badge.remove();
+      }
     });
 
     document.getElementById("tavern-npcs").style.display = "block";
     document.getElementById("tavern-conversation").style.display = "none";
   }
 
-  function startConversation(scenario) {
+  function startTavernConversation(npcData) {
     tavernState = {
-      scenario,
-      dialogueIndex: 0
+      npc: npcData,
+      topicIndex: 0
     };
 
     document.getElementById("tavern-npcs").style.display = "none";
     document.getElementById("tavern-conversation").style.display = "block";
 
+    // Set NPC info
+    const avatarEl = document.getElementById("tavern-npc-avatar");
+    if (avatarEl) avatarEl.innerHTML = SPRITES.npc[npcData.npc](40);
+    const nameEl = document.getElementById("tavern-npc-name");
+    if (nameEl) nameEl.textContent = npcData.name;
+
+    // Clear conversation log
     const log = document.getElementById("conversation-log");
     log.innerHTML = "";
 
-    // Show first NPC line
-    addChatBubble(scenario.name, scenario.dialogue[0].npc, "npc");
-    speak(scenario.dialogue[0].npc);
+    // Load first topic
+    loadTavernTopic();
+  }
+
+  function loadTavernTopic() {
+    const topic = tavernState.npc.topics[tavernState.topicIndex];
+    if (!topic) {
+      finishTavernConversation();
+      return;
+    }
+    addChatBubble(tavernState.npc.name, topic.npcGreeting, "npc");
+    speak(topic.npcGreeting);
   }
 
   function addChatBubble(speaker, text, type) {
     const log = document.getElementById("conversation-log");
     const bubble = document.createElement("div");
     bubble.className = "chat-bubble " + type;
-    bubble.innerHTML = `<div class="speaker">${speaker}</div><div>${text}</div>`;
+    bubble.innerHTML = '<div class="speaker">' + speaker + '</div><div>' + text + '</div>';
     log.appendChild(bubble);
     log.scrollTop = log.scrollHeight;
   }
 
   function handleTavernResult(results) {
-    const scenario = tavernState.scenario;
-    const dialogue = scenario.dialogue[tavernState.dialogueIndex];
-    const spokenText = results[0];
+    const topic = tavernState.npc.topics[tavernState.topicIndex];
+    if (!topic) return;
 
+    const spokenText = results[0];
     addChatBubble(state.character.name, spokenText, "player");
 
-    // Check if response matches expected topics
-    const spoken = spokenText.toLowerCase();
-    const matched = dialogue.expectedTopics.some(topic => spoken.includes(topic));
+    const scorer = new ConversationScorer();
+    const scoreData = scorer.score(spokenText, topic);
 
-    if (matched) {
-      tavernState.dialogueIndex++;
+    state.wordsSpoken = (state.wordsSpoken || 0) + scoreData.wordCount;
 
-      if (tavernState.dialogueIndex < scenario.dialogue.length) {
-        setTimeout(() => {
-          const nextDialogue = scenario.dialogue[tavernState.dialogueIndex];
-          addChatBubble(scenario.name, nextDialogue.npc, "npc");
-          speak(nextDialogue.npc);
-        }, 800);
+    // Show NPC response based on score tier
+    const response = topic.npcResponses[scoreData.tier];
+    setTimeout(() => {
+      addChatBubble(tavernState.npc.name, response, "npc");
+      speak(response);
+
+      // Move to next topic
+      tavernState.topicIndex++;
+      if (tavernState.topicIndex < tavernState.npc.topics.length) {
+        setTimeout(() => loadTavernTopic(), 2000);
       } else {
-        // Conversation complete
-        setTimeout(() => {
-          addChatBubble(scenario.name, "It was lovely talking to you! Safe travels!", "npc");
-          if (!state.tavernCompleted.includes(scenario.id)) {
-            state.tavernCompleted.push(scenario.id);
-          }
-          state.realmStats.tavern.completed++;
-          state.realmStats.tavern.conversationsFinished = state.tavernCompleted.length;
-          addXp(50, "tavern");
-          addGold(20);
-          updateDailyQuest("tavern", 1);
-          updateDailyQuest("any", 1);
-          checkAchievement("tavern_regular", state.tavernCompleted.length >= GAME_DATA.tavern.scenarios.length);
-          saveState();
-          notify("Conversation complete! +50 XP +20 Gold");
-        }, 800);
+        setTimeout(() => finishTavernConversation(), 1500);
       }
-    } else {
-      setTimeout(() => {
-        addChatBubble(scenario.name, "Hmm, interesting... Could you tell me more?", "npc");
-        speak("Hmm, interesting. Could you tell me more?");
-      }, 800);
+    }, 800);
+  }
+
+  function finishTavernConversation() {
+    addChatBubble(tavernState.npc.name, "It was wonderful talking to you! Come back anytime!", "npc");
+
+    if (!state.tavernNpcsVisited) state.tavernNpcsVisited = [];
+    if (!state.tavernNpcsVisited.includes(tavernState.npc.id)) {
+      state.tavernNpcsVisited.push(tavernState.npc.id);
     }
+    state.realmStats.tavern.completed++;
+
+    addXp(50, "tavern");
+    addGold(20);
+    updateDailyQuest("tavern", 1);
+    updateDailyQuest("any", 1);
+
+    checkAchievement("tavern_regular", (state.tavernNpcsVisited || []).length >= GAME_DATA.tavern.length);
+
+    notify("Conversation complete! +50 XP +20 Gold");
+    saveState();
   }
 
   function setupTavernHandlers() {
+    // NPC card clicks
+    document.querySelectorAll("#npc-grid .npc-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const npcKey = card.dataset.npc;
+        const npcData = GAME_DATA.tavern.find(n => n.npc === npcKey);
+        if (npcData) startTavernConversation(npcData);
+      });
+    });
+
     document.getElementById("tavern-speak").addEventListener("click", () => {
       startListening(document.getElementById("tavern-speak"), (results) => {
         handleTavernResult(results);
       });
+    });
+
+    document.getElementById("tavern-npc-back").addEventListener("click", () => {
+      initTavern();
     });
 
     document.getElementById("tavern-back").addEventListener("click", () => {
@@ -1571,16 +1525,15 @@
 
       const card = document.createElement("div");
       card.className = "shop-item";
-      card.innerHTML = `
-        <div class="item-icon">${GAME_DATA.icons[item.icon] || "\uD83D\uDCE6"}</div>
-        <h4>${item.name}</h4>
-        <p>${item.description}</p>
-        <div class="item-price">\uD83E\uDE99 ${item.price}</div>
-        ${owned > 0 ? `<p style="color:var(--green);font-size:0.8rem;">Owned: ${owned}</p>` : ""}
-        <button class="btn btn-primary btn-small shop-buy-btn" data-item="${item.id}" ${!canAfford ? "disabled" : ""}>
-          ${canAfford ? "Buy" : "Not enough gold"}
-        </button>
-      `;
+      card.innerHTML =
+        '<div class="item-icon">' + (SPRITES.icon[item.icon] ? SPRITES.icon[item.icon](32) : item.icon) + '</div>' +
+        '<h4>' + item.name + '</h4>' +
+        '<p>' + item.description + '</p>' +
+        '<div class="item-price">' + item.price + ' Gold</div>' +
+        (owned > 0 ? '<p style="color:var(--green);font-size:0.8rem;">Owned: ' + owned + '</p>' : "") +
+        '<button class="btn btn-primary btn-small shop-buy-btn" data-item="' + item.id + '" ' + (!canAfford ? "disabled" : "") + '>' +
+          (canAfford ? "Buy" : "Not enough gold") +
+        '</button>';
       grid.appendChild(card);
     });
 
@@ -1601,7 +1554,7 @@
     state.shopPurchases++;
     saveState();
 
-    notify(`Purchased ${item.name}!`);
+    notify("Purchased " + item.name + "!");
     checkAchievement("shopaholic", state.shopPurchases >= 10);
     renderShop();
     updateMapUI();
@@ -1618,7 +1571,7 @@
   function renderProfile() {
     if (!state.character) return;
     const classData = GAME_DATA.classes[state.character.class];
-    document.getElementById("profile-avatar").textContent = GAME_DATA.icons[classData.avatar] || "";
+    document.getElementById("profile-avatar").innerHTML = SPRITES.hero[state.character.class](80);
     document.getElementById("profile-name").textContent = state.character.name;
     document.getElementById("profile-class").textContent = classData.name;
     document.getElementById("profile-title").textContent = state.activeTitle || "Novice Adventurer";
@@ -1640,7 +1593,7 @@
         if (!item) return;
         const div = document.createElement("div");
         div.className = "inventory-item";
-        div.innerHTML = `${GAME_DATA.icons[item.icon] || ""} ${item.name} <span class="item-count">${count}</span>`;
+        div.innerHTML = (SPRITES.icon[item.icon] ? SPRITES.icon[item.icon](18) : "") + " " + item.name + ' <span class="item-count">' + count + '</span>';
         invGrid.appendChild(div);
       });
     }
@@ -1656,7 +1609,7 @@
       if (confirm("Are you sure you want to reset all progress? This cannot be undone!")) {
         resetState();
         showScreen("title");
-        initTitle();
+        location.reload();
       }
     });
   }
@@ -1673,20 +1626,17 @@
       const card = document.createElement("div");
       card.className = "quest-card" + (quest.completed ? " completed" : "");
       const progressPercent = Math.min(100, (quest.progress / quest.target) * 100);
-      card.innerHTML = `
-        <div class="quest-info">
-          <h4>${quest.description}</h4>
-          <div class="quest-progress">${quest.progress}/${quest.target}</div>
-          <div class="quest-progress-bar">
-            <div class="quest-progress-fill" style="width:${progressPercent}%"></div>
-          </div>
-        </div>
-        <div class="quest-rewards">
-          <span>\u2B50 ${quest.xpReward} XP</span>
-          <span>\uD83E\uDE99 ${quest.goldReward}</span>
-        </div>
-        ${quest.completed ? '<div class="quest-check">\u2705</div>' : ""}
-      `;
+      card.innerHTML =
+        '<div class="quest-info">' +
+          '<h4>' + quest.description + '</h4>' +
+          '<div class="quest-progress">' + quest.progress + '/' + quest.target + '</div>' +
+          '<div class="quest-progress-bar"><div class="quest-progress-fill" style="width:' + progressPercent + '%"></div></div>' +
+        '</div>' +
+        '<div class="quest-rewards">' +
+          '<span>' + quest.xpReward + ' XP</span>' +
+          '<span>' + quest.goldReward + ' Gold</span>' +
+        '</div>' +
+        (quest.completed ? '<div class="quest-check">Done</div>' : "");
       list.appendChild(card);
     });
   }
@@ -1707,14 +1657,13 @@
       const unlocked = state.achievements.includes(achievement.id);
       const card = document.createElement("div");
       card.className = "achievement-card " + (unlocked ? "unlocked" : "locked");
-      card.innerHTML = `
-        <div class="achievement-icon">${unlocked ? (GAME_DATA.icons[achievement.icon] || "\u2B50") : "\uD83D\uDD12"}</div>
-        <div class="achievement-info">
-          <h4>${achievement.name}</h4>
-          <p>${achievement.description}</p>
-          <span class="achievement-xp">${unlocked ? "\u2705 Unlocked" : `+${achievement.xpReward} XP`}</span>
-        </div>
-      `;
+      card.innerHTML =
+        '<div class="achievement-icon">' + (unlocked ? "\u2B50" : "\uD83D\uDD12") + '</div>' +
+        '<div class="achievement-info">' +
+          '<h4>' + achievement.name + '</h4>' +
+          '<p>' + achievement.description + '</p>' +
+          '<span class="achievement-xp">' + (unlocked ? "Unlocked" : "+" + achievement.xpReward + " XP") + '</span>' +
+        '</div>';
       grid.appendChild(card);
     });
   }
@@ -1738,9 +1687,7 @@
     initTitle();
     initCharacterCreation();
     initMap();
-    setupEchoHandlers();
-    setupWordForgeHandlers();
-    setupSpellTowerHandlers();
+    setupConversationHandlers();
     setupArenaHandlers();
     setupBossHandlers();
     setupTavernHandlers();

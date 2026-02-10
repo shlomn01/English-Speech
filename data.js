@@ -1,384 +1,366 @@
 // ============================================================
-// FREE SPEECH - Fantasy RPG English Practice Game
-// Game Data: Words, Sentences, Bosses, Achievements, Shop Items
+// FREE SPEECH v2 — Game Data
+// Conversation scenarios, bosses, shop, achievements, quests
 // ============================================================
 
 const GAME_DATA = {
 
-  // ── ECHO VALLEY: Pronunciation Practice ──────────────────
-  pronunciation: {
-    beginner: [
-      { text: "hello", phonetic: "heh-LOH" },
-      { text: "world", phonetic: "WURLD" },
-      { text: "thank you", phonetic: "THANGK yoo" },
-      { text: "please", phonetic: "PLEEZ" },
-      { text: "sorry", phonetic: "SOR-ee" },
-      { text: "water", phonetic: "WAW-ter" },
-      { text: "beautiful", phonetic: "BYOO-tih-ful" },
-      { text: "friend", phonetic: "FREND" },
-      { text: "family", phonetic: "FAM-uh-lee" },
-      { text: "morning", phonetic: "MOR-ning" },
-      { text: "evening", phonetic: "EEV-ning" },
-      { text: "goodbye", phonetic: "good-BYE" },
-      { text: "welcome", phonetic: "WEL-kum" },
-      { text: "happy", phonetic: "HAP-ee" },
-      { text: "music", phonetic: "MYOO-zik" },
-      { text: "color", phonetic: "KUL-er" },
-      { text: "garden", phonetic: "GAR-den" },
-      { text: "kitchen", phonetic: "KICH-en" },
-      { text: "window", phonetic: "WIN-doh" },
-      { text: "question", phonetic: "KWES-chun" },
-      { text: "answer", phonetic: "AN-ser" },
-      { text: "story", phonetic: "STOR-ee" },
-      { text: "simple", phonetic: "SIM-pul" },
-      { text: "travel", phonetic: "TRAV-ul" },
-      { text: "village", phonetic: "VIL-ij" },
-      { text: "castle", phonetic: "KAS-ul" },
-      { text: "forest", phonetic: "FOR-est" },
-      { text: "river", phonetic: "RIV-er" },
-      { text: "mountain", phonetic: "MOWN-tin" },
-      { text: "treasure", phonetic: "TREZH-er" },
-      { text: "adventure", phonetic: "ad-VEN-cher" },
-      { text: "magic", phonetic: "MAJ-ik" },
-      { text: "dragon", phonetic: "DRAG-un" },
-      { text: "courage", phonetic: "KUR-ij" },
-      { text: "journey", phonetic: "JUR-nee" }
-    ],
-    intermediate: [
-      { text: "the weather is wonderful today", phonetic: null },
-      { text: "I would like a cup of coffee", phonetic: null },
-      { text: "she is reading an interesting book", phonetic: null },
-      { text: "we are going to the market", phonetic: null },
-      { text: "he plays the guitar every evening", phonetic: null },
-      { text: "the children are playing in the park", phonetic: null },
-      { text: "I need to finish my homework", phonetic: null },
-      { text: "can you help me find the library", phonetic: null },
-      { text: "the restaurant serves delicious food", phonetic: null },
-      { text: "they traveled across the country last summer", phonetic: null },
-      { text: "the brave knight entered the dark cave", phonetic: null },
-      { text: "a mysterious stranger arrived at the tavern", phonetic: null },
-      { text: "the wizard cast a powerful spell", phonetic: null },
-      { text: "our quest begins at the edge of the forest", phonetic: null },
-      { text: "the ancient map reveals a hidden path", phonetic: null },
-      { text: "I enjoy learning new languages", phonetic: null },
-      { text: "the movie was absolutely fantastic", phonetic: null },
-      { text: "could you please repeat that slowly", phonetic: null },
-      { text: "my brother works at a hospital", phonetic: null },
-      { text: "we should take a different route", phonetic: null },
-      { text: "the museum opens at nine o'clock", phonetic: null },
-      { text: "she has been studying for three hours", phonetic: null },
-      { text: "I forgot to bring my umbrella", phonetic: null },
-      { text: "the train departs from platform five", phonetic: null },
-      { text: "he is the tallest person in the room", phonetic: null },
-      { text: "we celebrated her birthday last weekend", phonetic: null },
-      { text: "the garden is full of colorful flowers", phonetic: null },
-      { text: "I usually wake up at seven in the morning", phonetic: null },
-      { text: "the dog chased the cat around the yard", phonetic: null },
-      { text: "please turn off the lights before you leave", phonetic: null },
-      { text: "the armor protected the warrior from harm", phonetic: null },
-      { text: "legends speak of a sword hidden in stone", phonetic: null },
-      { text: "the phoenix rises from the ashes reborn", phonetic: null },
-      { text: "every hero must face their greatest fear", phonetic: null },
-      { text: "the enchanted forest whispers ancient secrets", phonetic: null }
-    ],
-    advanced: [
-      { text: "the entrepreneurial spirit drives innovation in modern economies", phonetic: null },
-      { text: "she demonstrated extraordinary perseverance throughout the competition", phonetic: null },
-      { text: "the pharmaceutical company developed a revolutionary treatment", phonetic: null },
-      { text: "his pronunciation of sophisticated vocabulary was impeccable", phonetic: null },
-      { text: "the archaeological expedition uncovered a remarkable civilization", phonetic: null },
-      { text: "environmental sustainability requires unprecedented global cooperation", phonetic: null },
-      { text: "the philosophical implications of artificial intelligence are profound", phonetic: null },
-      { text: "her comprehensive analysis thoroughly addressed every counterargument", phonetic: null },
-      { text: "the choreographer meticulously orchestrated an unforgettable performance", phonetic: null },
-      { text: "technological advancements have fundamentally transformed communication", phonetic: null },
-      { text: "the conscientious employee consistently exceeded expectations", phonetic: null },
-      { text: "bureaucratic inefficiency undermines organizational effectiveness", phonetic: null },
-      { text: "the unequivocal evidence corroborated the hypothesis conclusively", phonetic: null },
-      { text: "an unprecedented catastrophe necessitated immediate intervention", phonetic: null },
-      { text: "the idiosyncratic characteristics distinguished him from his contemporaries", phonetic: null },
-      { text: "the juxtaposition of ancient wisdom and modern technology creates fascinating possibilities", phonetic: null },
-      { text: "her eloquent dissertation on socioeconomic disparities garnered widespread acclaim", phonetic: null },
-      { text: "the reconnaissance mission revealed critical vulnerabilities in the enemy fortifications", phonetic: null },
-      { text: "the metamorphosis of the caterpillar into a butterfly symbolizes transformation", phonetic: null },
-      { text: "his magnanimous contribution to the charitable foundation was deeply appreciated", phonetic: null },
-      { text: "the labyrinthine corridors of the dungeon confounded even seasoned adventurers", phonetic: null },
-      { text: "an ancient prophecy foretold the convergence of three celestial phenomena", phonetic: null },
-      { text: "the incantation required precise pronunciation of every arcane syllable", phonetic: null },
-      { text: "the indomitable spirit of the heroes triumphed against overwhelming adversity", phonetic: null },
-      { text: "the necromancer's machinations threatened the equilibrium of the entire realm", phonetic: null },
-      { text: "the bibliographical references substantiated the researcher's methodology", phonetic: null },
-      { text: "the quintessential characteristics of exemplary leadership include empathy and decisiveness", phonetic: null },
-      { text: "the serendipitous discovery revolutionized our understanding of molecular biology", phonetic: null },
-      { text: "the anthropological study illuminated previously misunderstood cultural practices", phonetic: null },
-      { text: "the electromagnetic spectrum encompasses frequencies beyond human perception", phonetic: null }
-    ]
-  },
+  // ── STORYTELLER'S GLEN: Describe & Narrate ─────────────────
+  storytellers_glen: [
+    {
+      id: "favorite_place",
+      npcGreeting: "Welcome, traveler! I love hearing about faraway lands. Tell me about your favorite place in the world!",
+      prompt: "Describe your favorite place to the storyteller",
+      topicKeywords: ["place", "city", "town", "country", "beach", "mountain", "park", "home", "beautiful", "love", "visit", "travel", "nature", "building", "street", "river", "lake", "sea", "ocean", "garden", "forest", "island"],
+      bonusVocab: ["magnificent", "breathtaking", "serene", "picturesque", "vibrant", "peaceful", "stunning", "charming", "majestic", "cozy"],
+      minWords: 10,
+      npcResponses: {
+        great: "What a vivid description! I can almost see it in my mind. You truly have the gift of storytelling!",
+        good: "That sounds like a lovely place! I'd love to hear even more details about it.",
+        weak: "Interesting... could you paint a more detailed picture for me? What does it look like?",
+        off_topic: "Hmm, that's nice, but I was asking about a place you love! Where is your favorite spot?"
+      },
+      followUp: {
+        npcLine: "And what do you love most about that place? What makes it special?",
+        topicKeywords: ["love", "special", "favorite", "beautiful", "people", "food", "memory", "feel", "happy", "friend", "family", "amazing", "enjoy", "wonderful", "perfect", "remember"],
+        bonusVocab: ["atmosphere", "unforgettable", "extraordinary", "nostalgic", "captivating", "enchanting"]
+      }
+    },
+    {
+      id: "magical_forest",
+      npcGreeting: "Imagine you're walking through a magical forest. What do you see around you?",
+      prompt: "Describe what you see in the magical forest",
+      topicKeywords: ["tree", "forest", "flower", "animal", "bird", "light", "path", "green", "tall", "big", "mushroom", "fairy", "magic", "creature", "leaf", "dark", "bright", "river", "waterfall", "stone"],
+      bonusVocab: ["enchanted", "ancient", "mystical", "glowing", "towering", "luminous", "ethereal", "whispering", "magnificent", "dense"],
+      minWords: 10,
+      npcResponses: {
+        great: "What an incredible vision! Your words bring the forest to life!",
+        good: "I can picture it! The forest sounds magical indeed.",
+        weak: "Tell me more! What colors do you see? What sounds do you hear?",
+        off_topic: "We're imagining a forest, remember? What trees or creatures do you see?"
+      },
+      followUp: {
+        npcLine: "Suddenly you hear a strange sound. What happens next in your story?",
+        topicKeywords: ["hear", "sound", "noise", "turn", "look", "see", "walk", "run", "find", "discover", "animal", "creature", "follow", "surprise", "hide", "strange"],
+        bonusVocab: ["mysterious", "startled", "cautiously", "adventure", "unexpected", "courage"]
+      }
+    },
+    {
+      id: "dream_house",
+      npcGreeting: "If you could build your dream home anywhere, what would it look like?",
+      prompt: "Describe your dream house to the storyteller",
+      topicKeywords: ["house", "home", "room", "big", "small", "garden", "window", "door", "kitchen", "bedroom", "living", "bathroom", "floor", "roof", "wall", "pool", "balcony", "view", "modern", "old"],
+      bonusVocab: ["spacious", "luxurious", "minimalist", "contemporary", "traditional", "panoramic", "magnificent", "elegant", "sophisticated", "cozy"],
+      minWords: 10,
+      npcResponses: {
+        great: "That sounds like an absolute dream! You have wonderful taste!",
+        good: "Nice! I can imagine living there. What a lovely home that would be!",
+        weak: "Interesting start! Can you describe it in more detail? How many rooms?",
+        off_topic: "I asked about your dream house! What kind of home would you love to have?"
+      }
+    },
+    {
+      id: "childhood_memory",
+      npcGreeting: "Tell me about a happy memory from when you were young. What happened?",
+      prompt: "Share a happy childhood memory",
+      topicKeywords: ["when", "young", "child", "kid", "remember", "play", "friend", "family", "school", "summer", "birthday", "holiday", "fun", "happy", "laugh", "game", "toy", "park", "house", "mom", "dad", "brother", "sister"],
+      bonusVocab: ["nostalgic", "cherished", "innocent", "joyful", "memorable", "carefree", "delightful", "precious", "wonderful", "heartwarming"],
+      minWords: 10,
+      npcResponses: {
+        great: "What a beautiful memory! Thank you for sharing something so personal!",
+        good: "That sounds like such a fun time! Childhood memories are the best.",
+        weak: "Tell me more about what happened! Who was there with you?",
+        off_topic: "I'd love to hear about a happy memory from your childhood!"
+      }
+    },
+    {
+      id: "perfect_day",
+      npcGreeting: "Describe your perfect day from morning to night. What would you do?",
+      prompt: "Tell about your perfect day",
+      topicKeywords: ["morning", "wake", "breakfast", "lunch", "dinner", "afternoon", "evening", "night", "eat", "go", "visit", "friend", "family", "walk", "relax", "enjoy", "read", "watch", "play", "cook", "sleep", "sun", "coffee"],
+      bonusVocab: ["leisurely", "refreshing", "delightful", "tranquil", "invigorating", "satisfying", "blissful", "magnificent", "exquisite", "splendid"],
+      minWords: 10,
+      npcResponses: {
+        great: "Now THAT sounds like a perfect day! You've planned it beautifully!",
+        good: "Lovely! That sounds like a wonderful way to spend the day.",
+        weak: "Give me more details! What would you eat? Where would you go?",
+        off_topic: "I want to hear about your ideal day! What would you do from morning to night?"
+      }
+    }
+  ],
 
-  // ── WORD FORGE: Vocabulary ───────────────────────────────
-  vocabulary: {
-    everyday: [
-      { word: "abundant", definition: "Existing in large quantities; more than enough", hint: "Starts with 'ab'", syllables: 3 },
-      { word: "benevolent", definition: "Well-meaning and kindly; generous", hint: "Starts with 'be'", syllables: 4 },
-      { word: "candid", definition: "Truthful and straightforward; frank", hint: "Starts with 'ca'", syllables: 2 },
-      { word: "diligent", definition: "Having or showing care in one's work; hardworking", hint: "Starts with 'di'", syllables: 3 },
-      { word: "eloquent", definition: "Fluent and persuasive in speaking or writing", hint: "Starts with 'el'", syllables: 3 },
-      { word: "frugal", definition: "Sparing or economical with money or food", hint: "Starts with 'fr'", syllables: 2 },
-      { word: "genuine", definition: "Truly what it is said to be; authentic", hint: "Starts with 'ge'", syllables: 3 },
-      { word: "humble", definition: "Having a modest view of one's importance", hint: "Starts with 'hu'", syllables: 2 },
-      { word: "innovative", definition: "Featuring new methods; creative and original", hint: "Starts with 'in'", syllables: 4 },
-      { word: "jubilant", definition: "Feeling or expressing great happiness and triumph", hint: "Starts with 'ju'", syllables: 3 },
-      { word: "keen", definition: "Eager or enthusiastic; sharp", hint: "Starts with 'ke'", syllables: 1 },
-      { word: "lively", definition: "Full of life and energy; animated", hint: "Starts with 'li'", syllables: 2 },
-      { word: "meticulous", definition: "Showing great attention to detail; very careful", hint: "Starts with 'me'", syllables: 4 },
-      { word: "nurture", definition: "To care for and encourage growth or development", hint: "Starts with 'nu'", syllables: 2 },
-      { word: "optimistic", definition: "Hopeful and confident about the future", hint: "Starts with 'op'", syllables: 4 },
-      { word: "persistent", definition: "Continuing firmly despite difficulty or opposition", hint: "Starts with 'pe'", syllables: 3 },
-      { word: "quarrel", definition: "An angry argument or disagreement", hint: "Starts with 'qu'", syllables: 2 },
-      { word: "resilient", definition: "Able to recover quickly from difficulties; tough", hint: "Starts with 're'", syllables: 3 },
-      { word: "sincere", definition: "Free from pretense or deceit; genuine", hint: "Starts with 'si'", syllables: 2 },
-      { word: "thrive", definition: "To grow or develop well; to prosper", hint: "Starts with 'th'", syllables: 1 },
-      { word: "unique", definition: "Being the only one of its kind; unlike anything else", hint: "Starts with 'un'", syllables: 2 },
-      { word: "vivid", definition: "Producing powerful feelings or strong, clear images", hint: "Starts with 'vi'", syllables: 2 },
-      { word: "whimsical", definition: "Playfully quaint or fanciful; unpredictable", hint: "Starts with 'wh'", syllables: 3 },
-      { word: "zealous", definition: "Having great energy or enthusiasm for a cause", hint: "Starts with 'ze'", syllables: 2 },
-      { word: "amiable", definition: "Friendly and pleasant in manner", hint: "Starts with 'am'", syllables: 4 },
-      { word: "blissful", definition: "Extremely happy; full of joy", hint: "Starts with 'bl'", syllables: 2 },
-      { word: "courageous", definition: "Not deterred by danger or pain; brave", hint: "Starts with 'co'", syllables: 3 },
-      { word: "devoted", definition: "Very loving or loyal; dedicated", hint: "Starts with 'de'", syllables: 3 },
-      { word: "embrace", definition: "To hold closely in one's arms; to accept willingly", hint: "Starts with 'em'", syllables: 2 },
-      { word: "flourish", definition: "To grow or develop in a healthy or vigorous way", hint: "Starts with 'fl'", syllables: 2 }
-    ],
-    business: [
-      { word: "revenue", definition: "Income generated from business operations", hint: "Starts with 're'", syllables: 3 },
-      { word: "leverage", definition: "Use something to maximum advantage", hint: "Starts with 'le'", syllables: 3 },
-      { word: "stakeholder", definition: "A person with an interest in a business or project", hint: "Starts with 'st'", syllables: 3 },
-      { word: "benchmark", definition: "A standard or point of reference for comparison", hint: "Starts with 'be'", syllables: 2 },
-      { word: "scalable", definition: "Able to be changed in size or scale; expandable", hint: "Starts with 'sc'", syllables: 3 },
-      { word: "synergy", definition: "Combined effort being greater than individual parts", hint: "Starts with 'sy'", syllables: 3 },
-      { word: "acquisition", definition: "The purchase of one company by another", hint: "Starts with 'ac'", syllables: 4 },
-      { word: "liability", definition: "A financial obligation or debt", hint: "Starts with 'li'", syllables: 5 },
-      { word: "dividend", definition: "A payment made to shareholders from profits", hint: "Starts with 'di'", syllables: 3 },
-      { word: "equity", definition: "The value of shares issued by a company", hint: "Starts with 'eq'", syllables: 3 },
-      { word: "portfolio", definition: "A range of investments held by a person or organization", hint: "Starts with 'po'", syllables: 4 },
-      { word: "negotiate", definition: "To discuss terms to reach an agreement", hint: "Starts with 'ne'", syllables: 4 },
-      { word: "outsource", definition: "To obtain goods or services from an external supplier", hint: "Starts with 'ou'", syllables: 2 },
-      { word: "feasible", definition: "Possible and practical to achieve", hint: "Starts with 'fe'", syllables: 3 },
-      { word: "compliance", definition: "The act of conforming to rules or standards", hint: "Starts with 'co'", syllables: 3 },
-      { word: "innovation", definition: "The introduction of something new; a new method or idea", hint: "Starts with 'in'", syllables: 4 },
-      { word: "entrepreneur", definition: "A person who starts and runs their own business", hint: "Starts with 'en'", syllables: 4 },
-      { word: "commodity", definition: "A raw material or basic good that can be bought and sold", hint: "Starts with 'co'", syllables: 4 },
-      { word: "infrastructure", definition: "The basic systems and services that a society needs to function", hint: "Starts with 'in'", syllables: 4 },
-      { word: "depreciation", definition: "A reduction in the value of an asset over time", hint: "Starts with 'de'", syllables: 5 },
-      { word: "quarterly", definition: "Occurring every three months", hint: "Starts with 'qu'", syllables: 3 },
-      { word: "forecast", definition: "A prediction about future trends or events", hint: "Starts with 'fo'", syllables: 2 },
-      { word: "margin", definition: "The difference between cost and selling price", hint: "Starts with 'ma'", syllables: 2 },
-      { word: "audit", definition: "An official inspection of an organization's accounts", hint: "Starts with 'au'", syllables: 2 },
-      { word: "merger", definition: "The combining of two companies into one", hint: "Starts with 'me'", syllables: 2 },
-      { word: "capital", definition: "Wealth in the form of money or assets", hint: "Starts with 'ca'", syllables: 3 },
-      { word: "incentive", definition: "Something that motivates or encourages action", hint: "Starts with 'in'", syllables: 3 },
-      { word: "volatile", definition: "Liable to change rapidly and unpredictably", hint: "Starts with 'vo'", syllables: 3 },
-      { word: "fiscal", definition: "Relating to government revenue and finances", hint: "Starts with 'fi'", syllables: 2 },
-      { word: "deficit", definition: "The amount by which spending exceeds income", hint: "Starts with 'de'", syllables: 3 }
-    ],
-    academic: [
-      { word: "hypothesis", definition: "A proposed explanation made as a starting point for investigation", hint: "Starts with 'hy'", syllables: 4 },
-      { word: "paradigm", definition: "A typical example or pattern; a model or framework", hint: "Starts with 'pa'", syllables: 3 },
-      { word: "empirical", definition: "Based on observation or experience rather than theory", hint: "Starts with 'em'", syllables: 4 },
-      { word: "synthesis", definition: "The combination of ideas to form a theory or system", hint: "Starts with 'sy'", syllables: 3 },
-      { word: "abstract", definition: "Existing in thought or as an idea; a summary of a text", hint: "Starts with 'ab'", syllables: 2 },
-      { word: "ambiguous", definition: "Open to more than one interpretation; unclear", hint: "Starts with 'am'", syllables: 4 },
-      { word: "comprehensive", definition: "Including all elements or aspects; thorough", hint: "Starts with 'co'", syllables: 4 },
-      { word: "dichotomy", definition: "A division into two contrasting groups or categories", hint: "Starts with 'di'", syllables: 4 },
-      { word: "extrapolate", definition: "To extend known data to predict unknown values", hint: "Starts with 'ex'", syllables: 4 },
-      { word: "fallacy", definition: "A mistaken belief based on unsound argument", hint: "Starts with 'fa'", syllables: 3 },
-      { word: "gregarious", definition: "Fond of company; sociable", hint: "Starts with 'gr'", syllables: 4 },
-      { word: "heterogeneous", definition: "Diverse in character or content; varied", hint: "Starts with 'he'", syllables: 6 },
-      { word: "implicit", definition: "Implied though not plainly expressed", hint: "Starts with 'im'", syllables: 3 },
-      { word: "juxtapose", definition: "To place close together for contrasting effect", hint: "Starts with 'ju'", syllables: 3 },
-      { word: "kinetic", definition: "Relating to or resulting from motion", hint: "Starts with 'ki'", syllables: 3 },
-      { word: "lucid", definition: "Expressed clearly; easy to understand", hint: "Starts with 'lu'", syllables: 2 },
-      { word: "methodology", definition: "A system of methods used in a particular area", hint: "Starts with 'me'", syllables: 5 },
-      { word: "nuance", definition: "A subtle difference in meaning or expression", hint: "Starts with 'nu'", syllables: 2 },
-      { word: "objective", definition: "Not influenced by personal feelings; impartial", hint: "Starts with 'ob'", syllables: 3 },
-      { word: "pragmatic", definition: "Dealing with things in a practical rather than idealistic way", hint: "Starts with 'pr'", syllables: 3 },
-      { word: "qualitative", definition: "Relating to quality or character rather than quantity", hint: "Starts with 'qu'", syllables: 4 },
-      { word: "rhetoric", definition: "The art of effective or persuasive speaking or writing", hint: "Starts with 'rh'", syllables: 3 },
-      { word: "subjective", definition: "Based on personal feelings, tastes, or opinions", hint: "Starts with 'su'", syllables: 3 },
-      { word: "thesis", definition: "A statement or theory put forward to be proved", hint: "Starts with 'th'", syllables: 2 },
-      { word: "ubiquitous", definition: "Present, appearing, or found everywhere", hint: "Starts with 'ub'", syllables: 4 },
-      { word: "verbose", definition: "Using more words than needed; wordy", hint: "Starts with 've'", syllables: 2 },
-      { word: "watershed", definition: "An event marking a turning point; a critical dividing line", hint: "Starts with 'wa'", syllables: 3 },
-      { word: "xenophobia", definition: "Dislike of or prejudice against people from other countries", hint: "Starts with 'xe'", syllables: 5 },
-      { word: "yield", definition: "To produce or provide; to give way", hint: "Starts with 'yi'", syllables: 1 },
-      { word: "anomaly", definition: "Something that deviates from what is standard or expected", hint: "Starts with 'an'", syllables: 4 }
-    ],
-    idioms: [
-      { word: "break the ice", definition: "To initiate conversation in a social setting; to relieve tension", hint: "Three words, starts with 'break'", syllables: 3 },
-      { word: "bite the bullet", definition: "To endure a painful situation with courage", hint: "Three words, starts with 'bite'", syllables: 4 },
-      { word: "cost an arm and a leg", definition: "To be very expensive", hint: "Six words, starts with 'cost'", syllables: 6 },
-      { word: "hit the nail on the head", definition: "To describe exactly what is causing a situation", hint: "Seven words, starts with 'hit'", syllables: 7 },
-      { word: "kill two birds with one stone", definition: "To achieve two things with a single action", hint: "Seven words, starts with 'kill'", syllables: 7 },
-      { word: "let the cat out of the bag", definition: "To reveal a secret accidentally", hint: "Eight words, starts with 'let'", syllables: 8 },
-      { word: "piece of cake", definition: "Something very easy to do", hint: "Three words, starts with 'piece'", syllables: 3 },
-      { word: "speak of the devil", definition: "Said when someone appears just after being mentioned", hint: "Four words, starts with 'speak'", syllables: 5 },
-      { word: "under the weather", definition: "Feeling ill or sick", hint: "Three words, starts with 'under'", syllables: 5 },
-      { word: "burning the midnight oil", definition: "Working late into the night", hint: "Four words, starts with 'burning'", syllables: 7 },
-      { word: "once in a blue moon", definition: "Very rarely; almost never", hint: "Five words, starts with 'once'", syllables: 5 },
-      { word: "the ball is in your court", definition: "It is your turn to take action or make a decision", hint: "Seven words, starts with 'the'", syllables: 7 },
-      { word: "barking up the wrong tree", definition: "To pursue a mistaken or misguided course of action", hint: "Six words, starts with 'barking'", syllables: 6 },
-      { word: "the best of both worlds", definition: "A situation where you enjoy two different advantages", hint: "Five words, starts with 'the'", syllables: 5 },
-      { word: "spill the beans", definition: "To reveal secret information", hint: "Three words, starts with 'spill'", syllables: 3 },
-      { word: "a blessing in disguise", definition: "Something that seems bad but turns out to be good", hint: "Four words, starts with 'a'", syllables: 6 },
-      { word: "add insult to injury", definition: "To make a bad situation even worse", hint: "Four words, starts with 'add'", syllables: 7 },
-      { word: "beat around the bush", definition: "To avoid saying what you mean directly", hint: "Four words, starts with 'beat'", syllables: 5 },
-      { word: "get out of hand", definition: "To become uncontrollable or chaotic", hint: "Four words, starts with 'get'", syllables: 4 },
-      { word: "hang in there", definition: "To persevere through a difficult situation; don't give up", hint: "Three words, starts with 'hang'", syllables: 3 },
-      { word: "hit the sack", definition: "To go to bed; to go to sleep", hint: "Three words, starts with 'hit'", syllables: 3 },
-      { word: "miss the boat", definition: "To miss an opportunity; to be too late", hint: "Three words, starts with 'miss'", syllables: 3 },
-      { word: "sit on the fence", definition: "To remain neutral; to not take sides", hint: "Four words, starts with 'sit'", syllables: 4 },
-      { word: "wrap your head around", definition: "To understand something complicated", hint: "Four words, starts with 'wrap'", syllables: 5 },
-      { word: "back to square one", definition: "To start over again from the beginning", hint: "Four words, starts with 'back'", syllables: 4 }
-    ]
-  },
+  // ── WORDSMITH'S WORKSHOP: Themed Vocabulary ────────────────
+  wordsmiths_workshop: [
+    {
+      id: "daily_routine",
+      npcGreeting: "I'm studying how people live their daily lives. Can you tell me about your typical day?",
+      prompt: "Tell the wordsmith about your daily routine",
+      topicKeywords: ["wake", "morning", "breakfast", "work", "school", "lunch", "afternoon", "dinner", "evening", "sleep", "shower", "brush", "eat", "go", "come", "home", "exercise", "study", "cook", "clean", "read", "watch"],
+      bonusVocab: ["routine", "schedule", "typically", "usually", "occasionally", "productive", "exhausting", "refreshing", "nutritious", "efficient"],
+      minWords: 10,
+      npcResponses: {
+        great: "Fascinating routine! You described it with such rich detail and vocabulary!",
+        good: "Sounds like a well-organized day! Good use of daily life vocabulary.",
+        weak: "Can you be more specific? What time do things happen? What do you eat?",
+        off_topic: "I'd love to hear about your daily routine! What do you do each day?"
+      },
+      followUp: {
+        npcLine: "And what's your favorite part of the day? Why do you enjoy it most?",
+        topicKeywords: ["favorite", "best", "enjoy", "love", "like", "relax", "fun", "happy", "peaceful", "exciting", "because", "feel", "moment", "time"],
+        bonusVocab: ["cherish", "anticipate", "unwind", "rejuvenate", "savor", "tranquil"]
+      }
+    },
+    {
+      id: "food_cooking",
+      npcGreeting: "I'm writing a cookbook! Tell me about your favorite food or a dish you know how to make.",
+      prompt: "Describe your favorite food or recipe",
+      topicKeywords: ["food", "cook", "make", "eat", "recipe", "ingredient", "delicious", "taste", "flavor", "meal", "dish", "chicken", "rice", "pasta", "soup", "salad", "bread", "vegetable", "fruit", "spice", "sauce", "hot", "cold", "sweet", "salt"],
+      bonusVocab: ["appetizing", "savory", "aromatic", "exquisite", "culinary", "nutritious", "seasoning", "marinate", "sauté", "garnish"],
+      minWords: 10,
+      npcResponses: {
+        great: "Delicious description! You really know your way around food vocabulary!",
+        good: "That sounds tasty! I love how you described the flavors.",
+        weak: "What ingredients go into it? How does it taste?",
+        off_topic: "I want to hear about food! What's your favorite dish?"
+      }
+    },
+    {
+      id: "seasons_chat",
+      npcGreeting: "I just love when the seasons change! What's your favorite season and why?",
+      prompt: "Tell the wordsmith about your favorite season",
+      topicKeywords: ["season", "winter", "summer", "spring", "fall", "autumn", "weather", "cold", "hot", "warm", "cool", "snow", "rain", "sun", "wind", "flower", "leaf", "ice", "beach", "holiday"],
+      bonusVocab: ["temperature", "magnificent", "refreshing", "cozy", "breeze", "blossom", "crisp", "humid", "frost", "radiant"],
+      minWords: 10,
+      npcResponses: {
+        great: "What a wonderful description! You paint a vivid picture with your words!",
+        good: "I can tell you really enjoy that time of year! Nice!",
+        weak: "Interesting... could you tell me a bit more about why you love it?",
+        off_topic: "Hmm, that's nice, but I was curious about seasons! What's your favorite?"
+      },
+      followUp: {
+        npcLine: "And what activities do you enjoy during that season?",
+        topicKeywords: ["walk", "swim", "ski", "read", "travel", "play", "enjoy", "outside", "inside", "sport", "holiday", "visit", "wear", "drink", "watch", "build"],
+        bonusVocab: ["adventure", "relaxation", "tradition", "festivities", "hibernate", "flourish"]
+      }
+    },
+    {
+      id: "job_business",
+      npcGreeting: "Tell me about your work or studies. What do you do and what skills does it require?",
+      prompt: "Describe your job or field of study",
+      topicKeywords: ["work", "job", "study", "school", "university", "company", "office", "team", "project", "skill", "learn", "teach", "manage", "build", "create", "write", "computer", "people", "help", "solve", "problem", "meeting"],
+      bonusVocab: ["professional", "collaborate", "expertise", "innovative", "responsibility", "deadline", "strategy", "ambitious", "proficiency", "analyze"],
+      minWords: 10,
+      npcResponses: {
+        great: "Impressive! You articulated that with excellent professional vocabulary!",
+        good: "Sounds like interesting work! Good use of career-related words.",
+        weak: "What exactly do you do day to day? What skills do you use?",
+        off_topic: "I'd like to hear about your work or studies. What's your profession?"
+      }
+    },
+    {
+      id: "hobbies",
+      npcGreeting: "Everyone needs a hobby! What do you do for fun in your free time?",
+      prompt: "Tell about your hobbies and interests",
+      topicKeywords: ["hobby", "fun", "free", "time", "play", "read", "sport", "music", "game", "draw", "paint", "cook", "travel", "watch", "movie", "exercise", "run", "swim", "write", "dance", "sing", "collect", "garden", "photo"],
+      bonusVocab: ["passionate", "enthusiastic", "creative", "recreational", "fascinating", "therapeutic", "exhilarating", "fulfilling", "dedicated", "immersive"],
+      minWords: 10,
+      npcResponses: {
+        great: "What wonderful hobbies! You described them with such enthusiasm and detail!",
+        good: "Nice! It's great that you have things you're passionate about.",
+        weak: "Tell me more! Why do you enjoy it? How often do you do it?",
+        off_topic: "I want to hear about your hobbies! What do you do for fun?"
+      }
+    }
+  ],
 
-  // ── SPELL TOWER: Sentence Building ───────────────────────
-  sentences: {
-    scrambled: [
-      { words: ["the", "cat", "sat", "on", "the", "mat"], answer: "the cat sat on the mat", grammar: "simple present" },
-      { words: ["she", "is", "reading", "a", "book"], answer: "she is reading a book", grammar: "present continuous" },
-      { words: ["they", "went", "to", "the", "store", "yesterday"], answer: "they went to the store yesterday", grammar: "simple past" },
-      { words: ["I", "have", "been", "waiting", "for", "you"], answer: "I have been waiting for you", grammar: "present perfect continuous" },
-      { words: ["the", "dog", "was", "chasing", "its", "tail"], answer: "the dog was chasing its tail", grammar: "past continuous" },
-      { words: ["we", "will", "travel", "to", "Paris", "next", "summer"], answer: "we will travel to Paris next summer", grammar: "simple future" },
-      { words: ["he", "has", "finished", "his", "homework"], answer: "he has finished his homework", grammar: "present perfect" },
-      { words: ["the", "children", "were", "playing", "in", "the", "park"], answer: "the children were playing in the park", grammar: "past continuous" },
-      { words: ["she", "would", "like", "a", "cup", "of", "tea"], answer: "she would like a cup of tea", grammar: "conditional" },
-      { words: ["the", "letter", "was", "written", "by", "the", "queen"], answer: "the letter was written by the queen", grammar: "passive voice" },
-      { words: ["if", "it", "rains", "we", "will", "stay", "home"], answer: "if it rains we will stay home", grammar: "first conditional" },
-      { words: ["the", "hero", "bravely", "fought", "the", "dragon"], answer: "the hero bravely fought the dragon", grammar: "simple past" },
-      { words: ["the", "wizard", "carefully", "prepared", "the", "potion"], answer: "the wizard carefully prepared the potion", grammar: "simple past" },
-      { words: ["the", "treasure", "was", "hidden", "beneath", "the", "castle"], answer: "the treasure was hidden beneath the castle", grammar: "passive voice" },
-      { words: ["a", "mysterious", "light", "appeared", "in", "the", "forest"], answer: "a mysterious light appeared in the forest", grammar: "simple past" },
-      { words: ["the", "knight", "must", "complete", "three", "trials"], answer: "the knight must complete three trials", grammar: "modal verb" },
-      { words: ["you", "should", "always", "tell", "the", "truth"], answer: "you should always tell the truth", grammar: "modal verb" },
-      { words: ["she", "can", "speak", "four", "different", "languages"], answer: "she can speak four different languages", grammar: "modal verb" },
-      { words: ["the", "movie", "was", "better", "than", "the", "book"], answer: "the movie was better than the book", grammar: "comparative" },
-      { words: ["this", "is", "the", "most", "beautiful", "sunset", "I", "have", "ever", "seen"], answer: "this is the most beautiful sunset I have ever seen", grammar: "superlative" },
-      { words: ["neither", "the", "king", "nor", "the", "queen", "attended", "the", "feast"], answer: "neither the king nor the queen attended the feast", grammar: "correlative conjunction" },
-      { words: ["not", "only", "did", "he", "win", "but", "he", "also", "set", "a", "record"], answer: "not only did he win but he also set a record", grammar: "correlative conjunction" },
-      { words: ["by", "the", "time", "we", "arrived", "the", "show", "had", "already", "started"], answer: "by the time we arrived the show had already started", grammar: "past perfect" },
-      { words: ["if", "I", "had", "known", "I", "would", "have", "come", "earlier"], answer: "if I had known I would have come earlier", grammar: "third conditional" },
-      { words: ["the", "book", "which", "I", "borrowed", "was", "fascinating"], answer: "the book which I borrowed was fascinating", grammar: "relative clause" },
-      { words: ["she", "asked", "me", "where", "I", "had", "been"], answer: "she asked me where I had been", grammar: "reported speech" },
-      { words: ["the", "more", "you", "practice", "the", "better", "you", "become"], answer: "the more you practice the better you become", grammar: "comparative correlative" },
-      { words: ["despite", "the", "rain", "we", "enjoyed", "the", "festival"], answer: "despite the rain we enjoyed the festival", grammar: "concession" },
-      { words: ["having", "completed", "the", "quest", "the", "hero", "returned", "home"], answer: "having completed the quest the hero returned home", grammar: "participle clause" },
-      { words: ["it", "is", "essential", "that", "everyone", "participate"], answer: "it is essential that everyone participate", grammar: "subjunctive" }
-    ],
-    fillInBlank: [
-      { sentence: "The early bird ___ the worm.", answer: "catches", hint: "present tense of 'catch'" },
-      { sentence: "She ___ to the gym every morning.", answer: "goes", hint: "present tense of 'go'" },
-      { sentence: "They ___ finished eating when we arrived.", answer: "had", hint: "past perfect auxiliary" },
-      { sentence: "I wish I ___ fly like a bird.", answer: "could", hint: "modal verb expressing ability" },
-      { sentence: "The cake ___ baked by my grandmother.", answer: "was", hint: "passive voice auxiliary" },
-      { sentence: "If I ___ rich, I would travel the world.", answer: "were", hint: "subjunctive form of 'be'" },
-      { sentence: "She ___ studying English for five years.", answer: "has been", hint: "present perfect continuous" },
-      { sentence: "The warrior ___ his sword and charged into battle.", answer: "drew", hint: "past tense of 'draw'" },
-      { sentence: "The spell ___ cast before the enemy could react.", answer: "was", hint: "passive voice past" },
-      { sentence: "The adventurers ___ traveled for many days.", answer: "had", hint: "past perfect auxiliary" },
-      { sentence: "By tomorrow, she ___ completed the project.", answer: "will have", hint: "future perfect" },
-      { sentence: "He ___ rather stay home than go out.", answer: "would", hint: "preference modal" },
-      { sentence: "We ___ to leave before it gets dark.", answer: "need", hint: "expressing necessity" },
-      { sentence: "The teacher asked if we ___ understood the lesson.", answer: "had", hint: "past perfect in reported speech" },
-      { sentence: "Neither the students ___ the teacher knew the answer.", answer: "nor", hint: "correlative conjunction" },
-      { sentence: "The food smells ___.", answer: "delicious", hint: "adjective after linking verb" },
-      { sentence: "She runs ___ than her brother.", answer: "faster", hint: "comparative adverb" },
-      { sentence: "This is the ___ interesting book I have ever read.", answer: "most", hint: "superlative marker" },
-      { sentence: "He has been working here ___ 2015.", answer: "since", hint: "preposition for point in time" },
-      { sentence: "I have been waiting ___ two hours.", answer: "for", hint: "preposition for duration" },
-      { sentence: "The castle ___ on a hill overlooking the valley.", answer: "stands", hint: "present tense of 'stand'" },
-      { sentence: "She ___ never seen such a magnificent dragon.", answer: "had", hint: "past perfect auxiliary" },
-      { sentence: "The potion ___ be ready by midnight.", answer: "will", hint: "future tense auxiliary" },
-      { sentence: "He ___ practicing his spells when the storm began.", answer: "was", hint: "past continuous auxiliary" },
-      { sentence: "The ancient scroll ___ been lost for centuries.", answer: "had", hint: "past perfect auxiliary" }
-    ]
-  },
+  // ── COUNCIL CHAMBER: Opinion & Argument ────────────────────
+  council_chamber: [
+    {
+      id: "homework_debate",
+      npcGreeting: "The council is debating: Should children have homework? What is your opinion?",
+      prompt: "Argue whether children should have homework",
+      topicKeywords: ["homework", "children", "school", "study", "learn", "think", "believe", "opinion", "because", "however", "therefore", "important", "help", "practice", "time", "play", "stress", "education", "teacher", "parent", "skill"],
+      bonusVocab: ["furthermore", "consequently", "nevertheless", "beneficial", "detrimental", "perspective", "argument", "evidence", "crucial", "fundamental"],
+      minWords: 15,
+      npcResponses: {
+        great: "A brilliant argument! Your reasoning is clear and your use of connectors is excellent!",
+        good: "Good points! Try adding more connecting words like 'however' or 'therefore'.",
+        weak: "You've stated a position, but why? Give me reasons with 'because' or 'since'.",
+        off_topic: "We're debating homework for children. What's your position on this topic?"
+      },
+      followUp: {
+        npcLine: "Interesting! But what would someone who disagrees with you say? How would you respond?",
+        topicKeywords: ["but", "however", "although", "disagree", "argue", "point", "counter", "still", "even", "though", "while", "despite", "believe", "think", "understand", "agree"],
+        bonusVocab: ["counterargument", "acknowledge", "nevertheless", "perspective", "valid", "compromise"]
+      }
+    },
+    {
+      id: "technology_debate",
+      npcGreeting: "Here's a question for the council: Is technology making our lives better or worse?",
+      prompt: "Argue whether technology is good for society",
+      topicKeywords: ["technology", "phone", "computer", "internet", "social", "media", "better", "worse", "help", "problem", "connect", "communicate", "information", "health", "work", "easy", "difficult", "change", "future", "think", "believe"],
+      bonusVocab: ["innovation", "advancement", "consequence", "revolutionary", "detrimental", "efficiency", "isolation", "unprecedented", "transform", "dependent"],
+      minWords: 15,
+      npcResponses: {
+        great: "Excellent reasoning! You presented a nuanced argument with strong vocabulary!",
+        good: "Good thoughts! Try to address both positive and negative sides.",
+        weak: "Can you explain your reasoning? Use words like 'because', 'for example'.",
+        off_topic: "We're discussing technology's impact on society. What do you think?"
+      }
+    },
+    {
+      id: "environment_debate",
+      npcGreeting: "The kingdom faces a crisis! What should ordinary people do to protect the environment?",
+      prompt: "Argue what people should do for the environment",
+      topicKeywords: ["environment", "nature", "recycle", "save", "energy", "water", "pollution", "climate", "tree", "plant", "reduce", "waste", "plastic", "car", "walk", "bike", "protect", "earth", "animal", "change", "should", "must"],
+      bonusVocab: ["sustainability", "conservation", "renewable", "ecological", "biodegradable", "carbon", "footprint", "initiative", "responsibility", "preservation"],
+      minWords: 15,
+      npcResponses: {
+        great: "A passionate and well-structured argument! The council is impressed!",
+        good: "Good ideas! Try to organize them with 'First', 'Second', 'Finally'.",
+        weak: "What specific actions should people take? Give concrete examples.",
+        off_topic: "We're discussing how to protect the environment. What are your ideas?"
+      }
+    },
+    {
+      id: "reading_vs_video",
+      npcGreeting: "Some say reading books is better than watching videos for learning. Do you agree?",
+      prompt: "Compare reading books vs watching videos for learning",
+      topicKeywords: ["read", "book", "watch", "video", "learn", "better", "because", "think", "believe", "information", "understand", "remember", "easy", "difficult", "both", "prefer", "imagination", "visual", "focus", "attention"],
+      bonusVocab: ["comprehension", "retention", "stimulate", "passive", "engaging", "interactive", "supplement", "traditional", "multimedia", "cognitive"],
+      minWords: 15,
+      npcResponses: {
+        great: "What a thoughtful comparison! You argued both sides skillfully!",
+        good: "Good reasoning! Try comparing them directly using 'while' or 'whereas'.",
+        weak: "Which do you prefer and why? Use comparison words.",
+        off_topic: "We're comparing books and videos for learning. What's your view?"
+      }
+    },
+    {
+      id: "city_vs_country",
+      npcGreeting: "A classic debate: Is it better to live in a big city or in the countryside? Defend your choice!",
+      prompt: "Argue whether city or countryside living is better",
+      topicKeywords: ["city", "country", "countryside", "live", "better", "quiet", "noise", "nature", "job", "opportunity", "people", "space", "traffic", "air", "clean", "busy", "peaceful", "shop", "hospital", "school", "think", "prefer"],
+      bonusVocab: ["urban", "rural", "metropolitan", "tranquil", "infrastructure", "community", "amenities", "congestion", "commute", "proximity"],
+      minWords: 15,
+      npcResponses: {
+        great: "Brilliantly argued! Your comparative language was superb!",
+        good: "Solid points! Adding 'on the other hand' or 'in contrast' would strengthen it.",
+        weak: "Why do you think so? Give me specific advantages and disadvantages.",
+        off_topic: "We're debating city vs countryside living. Which do you prefer?"
+      }
+    }
+  ],
 
-  // ── THE ARENA: Speed Challenge Mix ───────────────────────
-  arena: {
-    challenges: [
-      { type: "vocab", question: "Say the word that means: 'Very happy'", answer: "jubilant", accept: ["jubilant", "ecstatic", "elated", "overjoyed"] },
-      { type: "vocab", question: "Say the word that means: 'Happening every year'", answer: "annual", accept: ["annual", "yearly"] },
-      { type: "vocab", question: "Say the opposite of 'ancient'", answer: "modern", accept: ["modern", "new", "contemporary", "recent"] },
-      { type: "vocab", question: "Say the opposite of 'generous'", answer: "stingy", accept: ["stingy", "greedy", "selfish", "miserly"] },
-      { type: "vocab", question: "Say a synonym for 'brave'", answer: "courageous", accept: ["courageous", "brave", "valiant", "fearless", "bold", "heroic"] },
-      { type: "vocab", question: "Say a synonym for 'smart'", answer: "intelligent", accept: ["intelligent", "clever", "brilliant", "wise", "smart"] },
-      { type: "vocab", question: "Say the word that means: 'To make smaller'", answer: "reduce", accept: ["reduce", "shrink", "diminish", "decrease", "minimize"] },
-      { type: "vocab", question: "Say the word that means: 'A group of stars'", answer: "constellation", accept: ["constellation"] },
-      { type: "vocab", question: "Say the word that means: 'Easily broken'", answer: "fragile", accept: ["fragile", "brittle", "delicate"] },
-      { type: "vocab", question: "Say the word that means: 'To go up'", answer: "ascend", accept: ["ascend", "climb", "rise"] },
-      { type: "pronunciation", question: "Say this word: 'entrepreneurship'", answer: "entrepreneurship", accept: ["entrepreneurship"] },
-      { type: "pronunciation", question: "Say this word: 'phenomenon'", answer: "phenomenon", accept: ["phenomenon"] },
-      { type: "pronunciation", question: "Say this word: 'sophisticated'", answer: "sophisticated", accept: ["sophisticated"] },
-      { type: "pronunciation", question: "Say this word: 'Mediterranean'", answer: "mediterranean", accept: ["mediterranean"] },
-      { type: "pronunciation", question: "Say this word: 'unbelievable'", answer: "unbelievable", accept: ["unbelievable"] },
-      { type: "pronunciation", question: "Say this phrase: 'through and through'", answer: "through and through", accept: ["through and through"] },
-      { type: "pronunciation", question: "Say this word: 'conscience'", answer: "conscience", accept: ["conscience"] },
-      { type: "pronunciation", question: "Say this word: 'necessary'", answer: "necessary", accept: ["necessary"] },
-      { type: "pronunciation", question: "Say this word: 'specifically'", answer: "specifically", accept: ["specifically"] },
-      { type: "pronunciation", question: "Say this word: 'comfortable'", answer: "comfortable", accept: ["comfortable"] },
-      { type: "sentence", question: "Complete: 'Actions speak louder than ___'", answer: "words", accept: ["words"] },
-      { type: "sentence", question: "Complete: 'Better late than ___'", answer: "never", accept: ["never"] },
-      { type: "sentence", question: "Complete: 'Practice makes ___'", answer: "perfect", accept: ["perfect"] },
-      { type: "sentence", question: "Complete: 'Every cloud has a silver ___'", answer: "lining", accept: ["lining"] },
-      { type: "sentence", question: "Complete: 'Don't judge a book by its ___'", answer: "cover", accept: ["cover"] },
-      { type: "sentence", question: "Complete: 'The pen is mightier than the ___'", answer: "sword", accept: ["sword"] },
-      { type: "sentence", question: "Complete: 'When in Rome, do as the Romans ___'", answer: "do", accept: ["do"] },
-      { type: "sentence", question: "Complete: 'A journey of a thousand miles begins with a single ___'", answer: "step", accept: ["step"] },
-      { type: "sentence", question: "Complete: 'Knowledge is ___'", answer: "power", accept: ["power"] },
-      { type: "sentence", question: "Complete: 'Time flies when you're having ___'", answer: "fun", accept: ["fun"] },
-      { type: "vocab", question: "Say the word that means: 'A long journey'", answer: "voyage", accept: ["voyage", "odyssey", "journey", "expedition", "trek"] },
-      { type: "vocab", question: "Say the word that means: 'Fear of heights'", answer: "acrophobia", accept: ["acrophobia", "vertigo"] },
-      { type: "vocab", question: "Say the past tense of 'begin'", answer: "began", accept: ["began"] },
-      { type: "vocab", question: "Say the past tense of 'swim'", answer: "swam", accept: ["swam"] },
-      { type: "vocab", question: "Say the past tense of 'write'", answer: "wrote", accept: ["wrote"] },
-      { type: "pronunciation", question: "Say: 'She sells sea shells by the seashore'", answer: "she sells sea shells by the seashore", accept: ["she sells sea shells by the seashore", "she sells seashells by the seashore"] },
-      { type: "pronunciation", question: "Say: 'How much wood would a woodchuck chuck'", answer: "how much wood would a woodchuck chuck", accept: ["how much wood would a woodchuck chuck"] },
-      { type: "pronunciation", question: "Say: 'Unique New York'", answer: "unique new york", accept: ["unique new york"] },
-      { type: "vocab", question: "What do you call a baby dog?", answer: "puppy", accept: ["puppy", "pup"] },
-      { type: "vocab", question: "What do you call a baby cat?", answer: "kitten", accept: ["kitten", "kitty"] }
-    ]
-  },
+  // ── QUICK WIT ARENA: Timed Topics ──────────────────────────
+  quick_wit_arena: [
+    {
+      id: "qw_animal",
+      prompt: "Describe an animal without saying its name",
+      topicKeywords: ["animal", "big", "small", "fast", "slow", "eat", "live", "run", "fly", "swim", "fur", "feather", "tail", "leg", "wild", "pet", "color", "sound", "strong", "cute"],
+      bonusVocab: ["predator", "mammal", "habitat", "nocturnal", "domestic", "carnivore"],
+      minWords: 5
+    },
+    {
+      id: "qw_weekend",
+      prompt: "What did you do last weekend?",
+      topicKeywords: ["weekend", "saturday", "sunday", "went", "played", "watched", "ate", "visited", "friend", "family", "fun", "relax", "sleep", "cook", "clean", "shop", "walk", "movie", "game", "read"],
+      bonusVocab: ["enjoyable", "productive", "leisure", "adventure", "memorable", "spontaneous"],
+      minWords: 5
+    },
+    {
+      id: "qw_superpower",
+      prompt: "If you had a superpower, what would it be?",
+      topicKeywords: ["fly", "invisible", "strong", "fast", "read", "mind", "time", "travel", "power", "ability", "hero", "save", "help", "would", "want", "choose", "because", "people", "world"],
+      bonusVocab: ["telekinesis", "immortality", "invincible", "extraordinary", "supernatural", "incredible"],
+      minWords: 5
+    },
+    {
+      id: "qw_weather",
+      prompt: "Describe today's weather",
+      topicKeywords: ["weather", "today", "sunny", "rainy", "cloudy", "cold", "hot", "warm", "wind", "snow", "clear", "sky", "temperature", "outside", "nice", "beautiful", "terrible", "storm"],
+      bonusVocab: ["overcast", "humidity", "forecast", "breezy", "scorching", "frigid"],
+      minWords: 5
+    },
+    {
+      id: "qw_movie",
+      prompt: "Tell me about a movie you enjoyed",
+      topicKeywords: ["movie", "film", "watch", "actor", "story", "funny", "scary", "exciting", "action", "comedy", "drama", "character", "scene", "favorite", "recommend", "about", "plot", "ending"],
+      bonusVocab: ["captivating", "thrilling", "protagonist", "cinematography", "masterpiece", "compelling"],
+      minWords: 5
+    },
+    {
+      id: "qw_invention",
+      prompt: "Name an important invention and explain why",
+      topicKeywords: ["invention", "important", "because", "change", "world", "help", "people", "technology", "phone", "computer", "internet", "medicine", "electricity", "car", "wheel", "print", "communication", "life"],
+      bonusVocab: ["revolutionary", "transformative", "innovation", "breakthrough", "fundamental", "indispensable"],
+      minWords: 5
+    },
+    {
+      id: "qw_country",
+      prompt: "Name a country you'd like to visit and why",
+      topicKeywords: ["country", "visit", "travel", "want", "because", "culture", "food", "people", "beautiful", "famous", "history", "language", "nature", "city", "beach", "mountain", "see", "experience"],
+      bonusVocab: ["fascinating", "diverse", "heritage", "exotic", "captivating", "wanderlust"],
+      minWords: 5
+    },
+    {
+      id: "qw_school_memory",
+      prompt: "Share a funny school memory",
+      topicKeywords: ["school", "class", "teacher", "friend", "funny", "remember", "laugh", "day", "time", "happen", "student", "test", "lunch", "break", "joke", "mistake", "surprise"],
+      bonusVocab: ["hilarious", "embarrassing", "unforgettable", "mischievous", "spontaneous", "comical"],
+      minWords: 5
+    },
+    {
+      id: "qw_breakfast",
+      prompt: "What do you usually eat for breakfast?",
+      topicKeywords: ["breakfast", "eat", "morning", "bread", "egg", "coffee", "tea", "milk", "cereal", "fruit", "toast", "juice", "cook", "quick", "healthy", "delicious", "usually", "sometimes", "favorite"],
+      bonusVocab: ["nutritious", "energizing", "wholesome", "appetizing", "savory", "portion"],
+      minWords: 5
+    },
+    {
+      id: "qw_hero",
+      prompt: "Who is your hero and why?",
+      topicKeywords: ["hero", "person", "because", "admire", "inspire", "strong", "brave", "kind", "help", "family", "mother", "father", "teacher", "leader", "example", "respect", "love", "important", "learn"],
+      bonusVocab: ["inspirational", "courageous", "compassionate", "remarkable", "dedicated", "influential"],
+      minWords: 5
+    }
+  ],
 
-  // ── DRAGON'S LAIR: Boss Battles ──────────────────────────
+  // ── DRAGON'S LAIR: Boss Conversations ──────────────────────
   bosses: [
     {
       id: "grammar_goblin",
       name: "Grammar Goblin",
       title: "Corruptor of Sentences",
       hp: 100,
-      image: "goblin",
       color: "#4a7c3f",
-      intro: "Heheheh! Your grammar is pathetic, hero! Let's see if you can fix my twisted sentences!",
-      victory: "No! My beautiful broken grammar... You've defeated me, word-wielder!",
-      defeat: "Hahahaha! Your grammar is as broken as my victims' sentences!",
+      intro: "Heheheh! Your grammar is pathetic, hero! Let's see if you can build proper sentences about ANYTHING I choose!",
+      victory: "No! Your sentences are too well-constructed! I am defeated!",
+      defeat: "Hahahaha! Your grammar crumbles like stale bread!",
       attacks: [
         "The Goblin hurls a SYNTAX BOMB at you!",
         "The Goblin casts COMMA SPLICE!",
         "The Goblin summons a DANGLING MODIFIER!"
       ],
-      challenges: [
-        { type: "fix_grammar", question: "Fix this: 'Him and me went to the store'", answer: "he and I went to the store", accept: ["he and i went to the store"] },
-        { type: "fix_grammar", question: "Fix this: 'Their going to the park'", answer: "they're going to the park", accept: ["they're going to the park", "they are going to the park"] },
-        { type: "fix_grammar", question: "Fix this: 'The dog chased it's tail'", answer: "the dog chased its tail", accept: ["the dog chased its tail"] },
-        { type: "fix_grammar", question: "Fix this: 'She don't know the answer'", answer: "she doesn't know the answer", accept: ["she doesn't know the answer", "she does not know the answer"] },
-        { type: "fix_grammar", question: "Fix this: 'Me and her is best friends'", answer: "she and I are best friends", accept: ["she and i are best friends", "her and i are best friends", "she and i are best friends"] },
-        { type: "fix_grammar", question: "Fix this: 'I seen that movie already'", answer: "I have seen that movie already", accept: ["i have seen that movie already", "i've seen that movie already", "i saw that movie already"] },
-        { type: "fix_grammar", question: "Fix this: 'The team have won the game'", answer: "the team has won the game", accept: ["the team has won the game"] },
-        { type: "fix_grammar", question: "Fix this: 'Between you and I'", answer: "between you and me", accept: ["between you and me"] },
-        { type: "fix_grammar", question: "Fix this: 'Could of been better'", answer: "could have been better", accept: ["could have been better", "could've been better"] },
-        { type: "fix_grammar", question: "Fix this: 'Your the best player'", answer: "you're the best player", accept: ["you're the best player", "you are the best player"] }
+      rounds: [
+        {
+          npcLine: "Talk to me about your morning routine — and you BETTER use correct grammar!",
+          topicKeywords: ["morning", "wake", "breakfast", "brush", "shower", "dress", "go", "eat", "drink", "usually", "always", "then", "after", "before", "first"],
+          bonusVocab: ["routine", "typically", "subsequently", "prior", "afterward", "commence"],
+          focus: "Use complete sentences with subject + verb"
+        },
+        {
+          npcLine: "Now tell me what you did YESTERDAY! Past tense or I attack!",
+          topicKeywords: ["yesterday", "went", "ate", "saw", "played", "watched", "visited", "worked", "studied", "talked", "read", "walked", "cooked", "cleaned", "finished"],
+          bonusVocab: ["accomplished", "experienced", "encountered", "completed", "discovered"],
+          focus: "Past tense verbs"
+        },
+        {
+          npcLine: "Grrr! Now tell me about your PLANS for the future!",
+          topicKeywords: ["will", "going", "plan", "want", "hope", "future", "tomorrow", "next", "year", "dream", "wish", "intend", "maybe", "probably", "soon"],
+          bonusVocab: ["aspire", "anticipate", "envision", "determined", "ambition", "ultimately"],
+          focus: "Future tense expressions"
+        }
       ],
       rewards: { xp: 500, gold: 100, title: "Grammar Guardian" }
     },
@@ -387,27 +369,34 @@ const GAME_DATA = {
       name: "Vocab Vampire",
       title: "Devourer of Definitions",
       hp: 150,
-      image: "vampire",
       color: "#8b0000",
-      intro: "I feast upon forgotten words! Can you name what I describe, or will your vocabulary run dry?",
-      victory: "Impossible! Your vocabulary... it burns like sunlight! I am vanquished!",
+      intro: "I feast upon weak vocabulary! Use ADVANCED words when you speak to me, or your word power will be drained!",
+      victory: "Impossible! Your vocabulary burns like sunlight! I am vanquished!",
       defeat: "Your vocabulary is anemic, just like my dinner! Mwahahaha!",
       attacks: [
         "The Vampire drains your WORD POWER!",
         "The Vampire casts DEFINITION DARKNESS!",
         "The Vampire summons a SYNONYM SWARM!"
       ],
-      challenges: [
-        { type: "vocab", question: "I mean 'to move in a twisting or spiraling pattern'. What word am I?", answer: "spiral", accept: ["spiral", "swirl", "twist", "coil"] },
-        { type: "vocab", question: "I mean 'shining brightly and steadily'. What word am I?", answer: "radiant", accept: ["radiant", "luminous", "brilliant", "glowing"] },
-        { type: "vocab", question: "I mean 'a person who wanders from place to place'. What word am I?", answer: "nomad", accept: ["nomad", "wanderer", "vagabond", "drifter"] },
-        { type: "vocab", question: "I mean 'extremely hungry'. What word am I?", answer: "famished", accept: ["famished", "starving", "ravenous"] },
-        { type: "vocab", question: "I mean 'to disappear gradually'. What word am I?", answer: "vanish", accept: ["vanish", "fade", "dissolve", "dissipate", "evaporate"] },
-        { type: "vocab", question: "I mean 'a clever plan or scheme'. What word am I?", answer: "strategy", accept: ["strategy", "scheme", "tactic", "ploy", "plan", "stratagem"] },
-        { type: "vocab", question: "I mean 'to look at something with wonder'. What word am I?", answer: "gaze", accept: ["gaze", "stare", "marvel", "admire", "behold"] },
-        { type: "vocab", question: "I mean 'occurring once a year'. What word am I?", answer: "annual", accept: ["annual", "yearly"] },
-        { type: "vocab", question: "I mean 'an unpleasant loud noise'. What word am I?", answer: "racket", accept: ["racket", "clamor", "din", "commotion", "noise"] },
-        { type: "vocab", question: "I mean 'to make something impure or unclean'. What word am I?", answer: "contaminate", accept: ["contaminate", "pollute", "taint", "corrupt"] }
+      rounds: [
+        {
+          npcLine: "Describe the most BEAUTIFUL place you've ever seen. And use fancy words!",
+          topicKeywords: ["beautiful", "place", "see", "visit", "nature", "city", "view", "mountain", "ocean", "sunset", "amazing", "wonderful", "incredible"],
+          bonusVocab: ["breathtaking", "magnificent", "spectacular", "picturesque", "awe-inspiring", "resplendent", "panoramic", "sublime", "pristine", "ethereal"],
+          focus: "Use descriptive and advanced adjectives"
+        },
+        {
+          npcLine: "Tell me about a DIFFICULT experience you overcame. Sophisticated words only!",
+          topicKeywords: ["difficult", "hard", "challenge", "overcome", "problem", "solve", "learn", "strong", "try", "fail", "succeed", "help", "feel", "struggle", "grow"],
+          bonusVocab: ["perseverance", "resilience", "adversity", "triumph", "determination", "formidable", "unwavering", "tenacious", "fortitude", "indomitable"],
+          focus: "Abstract vocabulary about emotions and experiences"
+        },
+        {
+          npcLine: "Explain why EDUCATION is important. Make me weep with your eloquence!",
+          topicKeywords: ["education", "school", "learn", "important", "knowledge", "skill", "future", "job", "people", "society", "children", "opportunity", "world", "improve", "understand"],
+          bonusVocab: ["fundamental", "enlightenment", "empowerment", "intellectual", "curriculum", "indispensable", "transformative", "cultivate", "paramount", "erudition"],
+          focus: "Academic and formal vocabulary"
+        }
       ],
       rewards: { xp: 750, gold: 150, title: "Vocabulary Virtuoso" }
     },
@@ -416,27 +405,34 @@ const GAME_DATA = {
       name: "Accent Dragon",
       title: "Lord of Mispronunciation",
       hp: 200,
-      image: "dragon",
       color: "#ff6600",
-      intro: "ROOOAR! I am the Accent Dragon! Every word you butcher makes me STRONGER! Speak perfectly or BURN!",
-      victory: "Your pronunciation... it's... PERFECT! The flames of confusion cannot touch you! I yield!",
-      defeat: "BAHAHAHA! Your tongue stumbles like a newborn foal! My flames grow STRONGER!",
+      intro: "ROOOAR! I demand LONG, CLEAR sentences! Every stuttered word makes me STRONGER! Speak at length or BURN!",
+      victory: "Your speech is... PERFECT! The flames of confusion cannot touch you! I yield!",
+      defeat: "BAHAHAHA! Your words are scattered like ashes in the wind!",
       attacks: [
         "The Dragon breathes MISPRONUNCIATION FIRE!",
         "The Dragon unleashes a PHONETIC FIRESTORM!",
         "The Dragon roars with ACCENTUAL FURY!"
       ],
-      challenges: [
-        { type: "pronunciation", question: "Say perfectly: 'particularly'", answer: "particularly", accept: ["particularly"] },
-        { type: "pronunciation", question: "Say perfectly: 'archaeological'", answer: "archaeological", accept: ["archaeological"] },
-        { type: "pronunciation", question: "Say perfectly: 'onomatopoeia'", answer: "onomatopoeia", accept: ["onomatopoeia"] },
-        { type: "pronunciation", question: "Say perfectly: 'conscientious'", answer: "conscientious", accept: ["conscientious"] },
-        { type: "pronunciation", question: "Say perfectly: 'uncharacteristically'", answer: "uncharacteristically", accept: ["uncharacteristically"] },
-        { type: "pronunciation", question: "Say perfectly: 'hippopotamus'", answer: "hippopotamus", accept: ["hippopotamus"] },
-        { type: "pronunciation", question: "Say perfectly: 'refrigerator'", answer: "refrigerator", accept: ["refrigerator"] },
-        { type: "pronunciation", question: "Say perfectly: 'enthusiastically'", answer: "enthusiastically", accept: ["enthusiastically"] },
-        { type: "pronunciation", question: "Say perfectly: 'superintendent'", answer: "superintendent", accept: ["superintendent"] },
-        { type: "pronunciation", question: "Say perfectly: 'electromagnetic'", answer: "electromagnetic", accept: ["electromagnetic"] }
+      rounds: [
+        {
+          npcLine: "Tell me a LONG story about something that happened to you. I want DETAILS!",
+          topicKeywords: ["story", "happened", "one", "day", "time", "went", "saw", "said", "then", "after", "because", "so", "but", "finally", "feel", "think", "remember"],
+          bonusVocab: ["subsequently", "meanwhile", "eventually", "unexpectedly", "remarkably", "consequently"],
+          focus: "Speak at length — aim for 30+ words"
+        },
+        {
+          npcLine: "Now explain how to do something — step by step, CLEARLY!",
+          topicKeywords: ["first", "then", "next", "after", "finally", "step", "need", "start", "put", "take", "make", "add", "wait", "turn", "open", "close", "carefully"],
+          bonusVocab: ["procedure", "subsequently", "furthermore", "additionally", "ensure", "precisely"],
+          focus: "Clear sequential instructions"
+        },
+        {
+          npcLine: "FINAL CHALLENGE! Describe the most EPIC adventure you can imagine!",
+          topicKeywords: ["adventure", "hero", "journey", "battle", "dragon", "quest", "brave", "magic", "sword", "fight", "save", "discover", "kingdom", "treasure", "enemy", "victory"],
+          bonusVocab: ["legendary", "perilous", "triumphant", "formidable", "valiant", "treacherous", "magnificent", "destiny", "extraordinary", "epic"],
+          focus: "Extended speech with vivid description"
+        }
       ],
       rewards: { xp: 1000, gold: 200, title: "Dragon Slayer" }
     },
@@ -445,27 +441,34 @@ const GAME_DATA = {
       name: "Idiom Specter",
       title: "Phantom of Figurative Speech",
       hp: 175,
-      image: "ghost",
       color: "#7b68ee",
-      intro: "Woooooo... I speak only in riddles and figures! Can you decipher my haunted expressions?",
-      victory: "You... you understand every expression! My riddles hold no power over you! I fade away...",
+      intro: "Woooooo... I speak in riddles and figures! Use IDIOMS and FIGURATIVE language or be lost forever in confusion!",
+      victory: "You understand every expression! My riddles hold no power over you!",
       defeat: "You're lost in a sea of confusion! My idioms will haunt you FOREVER!",
       attacks: [
         "The Specter casts MIXED METAPHOR!",
-        "The Specter hurls a CONFUSING CLICHE!",
+        "The Specter hurls a CONFUSING CLICHÉ!",
         "The Specter summons FIGURATIVE FOG!"
       ],
-      challenges: [
-        { type: "idiom", question: "What does it mean to 'let sleeping dogs lie'?", answer: "leave things as they are", accept: ["leave things as they are", "don't disturb things", "avoid interfering", "let it be", "leave it alone", "don't bring it up"] },
-        { type: "idiom", question: "Complete: 'Curiosity killed the ___'", answer: "cat", accept: ["cat"] },
-        { type: "idiom", question: "What does 'raining cats and dogs' mean?", answer: "raining heavily", accept: ["raining heavily", "raining very hard", "heavy rain", "pouring", "raining a lot"] },
-        { type: "idiom", question: "Complete: 'A penny for your ___'", answer: "thoughts", accept: ["thoughts"] },
-        { type: "idiom", question: "What does 'break a leg' mean?", answer: "good luck", accept: ["good luck", "wishing luck", "wish someone luck"] },
-        { type: "idiom", question: "Complete: 'The apple doesn't fall far from the ___'", answer: "tree", accept: ["tree"] },
-        { type: "idiom", question: "What does it mean to 'burn bridges'?", answer: "destroy relationships", accept: ["destroy relationships", "ruin relationships", "end relationships", "cut ties", "make enemies"] },
-        { type: "idiom", question: "Complete: 'When pigs ___'", answer: "fly", accept: ["fly"] },
-        { type: "idiom", question: "What does 'a piece of cake' mean?", answer: "very easy", accept: ["very easy", "easy", "simple", "not difficult"] },
-        { type: "idiom", question: "Complete: 'Don't put all your eggs in one ___'", answer: "basket", accept: ["basket"] }
+      rounds: [
+        {
+          npcLine: "Tell me about a TIME you had to WORK VERY HARD. Use colorful expressions!",
+          topicKeywords: ["work", "hard", "difficult", "try", "effort", "long", "tired", "finally", "succeed", "give", "up", "keep", "going", "push", "through", "challenge"],
+          bonusVocab: ["burning the midnight oil", "break a sweat", "blood sweat and tears", "buckle down", "nose to the grindstone", "piece of cake", "uphill battle", "worth it"],
+          focus: "Try to use idioms and figurative expressions"
+        },
+        {
+          npcLine: "Describe someone you ADMIRE. Use expressions that paint a picture!",
+          topicKeywords: ["person", "admire", "kind", "strong", "smart", "help", "inspire", "leader", "heart", "gold", "role", "model", "always", "never", "give", "brave"],
+          bonusVocab: ["heart of gold", "go the extra mile", "stand out", "one in a million", "pillar of strength", "ray of sunshine", "old soul", "sharp as a tack"],
+          focus: "Figurative language to describe personality"
+        },
+        {
+          npcLine: "Tell me about a MISTAKE you made and what you LEARNED from it!",
+          topicKeywords: ["mistake", "learn", "lesson", "wrong", "right", "realize", "understand", "better", "change", "grow", "try", "again", "never", "forget", "important"],
+          bonusVocab: ["learn the hard way", "blessing in disguise", "silver lining", "back to square one", "live and learn", "turn over a new leaf", "the last straw", "hindsight"],
+          focus: "Narrative with reflective language"
+        }
       ],
       rewards: { xp: 800, gold: 175, title: "Idiom Master" }
     },
@@ -474,90 +477,213 @@ const GAME_DATA = {
       name: "Tense Titan",
       title: "Warden of Time",
       hp: 250,
-      image: "titan",
       color: "#4169e1",
-      intro: "I AM THE TENSE TITAN! Past, present, future - all tenses bow to me! Can you master the flow of time itself?",
-      victory: "You have mastered every tense! Past, present, and future bend to YOUR will now! I am... tense no more.",
+      intro: "I AM THE TENSE TITAN! Past, present, future — all tenses must be used CORRECTLY! Show me you can control TIME ITSELF!",
+      victory: "You have mastered every tense! Past, present, and future bend to YOUR will!",
       defeat: "HA! You can't even tell past from present! Time itself rejects you!",
       attacks: [
         "The Titan warps TEMPORAL GRAMMAR!",
         "The Titan casts TENSE CONFUSION!",
         "The Titan unleashes a CHRONOLOGICAL CATASTROPHE!"
       ],
-      challenges: [
-        { type: "tense", question: "Change to past tense: 'I am going to the store'", answer: "I went to the store", accept: ["i went to the store", "i was going to the store"] },
-        { type: "tense", question: "Change to future tense: 'She writes a letter'", answer: "she will write a letter", accept: ["she will write a letter", "she is going to write a letter"] },
-        { type: "tense", question: "Change to present perfect: 'They ate dinner'", answer: "they have eaten dinner", accept: ["they have eaten dinner", "they've eaten dinner"] },
-        { type: "tense", question: "Change to past perfect: 'I finish my work'", answer: "I had finished my work", accept: ["i had finished my work"] },
-        { type: "tense", question: "Change to present continuous: 'He reads a book'", answer: "he is reading a book", accept: ["he is reading a book", "he's reading a book"] },
-        { type: "tense", question: "Change to passive voice: 'The cat chased the mouse'", answer: "the mouse was chased by the cat", accept: ["the mouse was chased by the cat"] },
-        { type: "tense", question: "Change to future perfect: 'I complete the mission'", answer: "I will have completed the mission", accept: ["i will have completed the mission"] },
-        { type: "tense", question: "Change to past continuous: 'We play football'", answer: "we were playing football", accept: ["we were playing football"] },
-        { type: "tense", question: "Change to present tense: 'She was singing a song'", answer: "she sings a song", accept: ["she sings a song", "she is singing a song"] },
-        { type: "tense", question: "Change to conditional: 'I go to the party'", answer: "I would go to the party", accept: ["i would go to the party"] }
+      rounds: [
+        {
+          npcLine: "Tell me about your LIFE — past, present, AND future! Mix ALL the tenses!",
+          topicKeywords: ["was", "were", "am", "is", "will", "been", "have", "had", "going", "used", "now", "before", "after", "currently", "someday", "recently", "already", "yet", "always"],
+          bonusVocab: ["previously", "currently", "simultaneously", "eventually", "meanwhile", "henceforth", "subsequently", "nowadays", "formerly", "prospectively"],
+          focus: "Use past, present, and future tenses correctly"
+        },
+        {
+          npcLine: "Now tell me a story using ONLY the past tense! No present allowed!",
+          topicKeywords: ["was", "were", "went", "had", "said", "told", "saw", "came", "gave", "took", "made", "found", "knew", "thought", "felt", "became", "began", "left", "brought", "kept"],
+          bonusVocab: ["accomplished", "encountered", "discovered", "experienced", "overcame", "witnessed", "embarked", "ventured", "persevered", "triumphed"],
+          focus: "Consistent past tense narrative"
+        },
+        {
+          npcLine: "FINAL CHALLENGE! Tell me three things: what you HAVE done, what you ARE doing, and what you WILL do!",
+          topicKeywords: ["have", "has", "been", "doing", "am", "currently", "will", "going", "plan", "already", "right", "now", "soon", "just", "recently", "next", "tomorrow", "already", "finished", "started"],
+          bonusVocab: ["accomplished", "undertaking", "pursuing", "anticipating", "progressing", "aspiring", "commenced", "intending", "endeavoring", "envisioning"],
+          focus: "Perfect, continuous, and future tenses"
+        }
       ],
       rewards: { xp: 1200, gold: 250, title: "Time Lord of Tenses" }
     }
   ],
 
-  // ── THE TAVERN: Conversation Scenarios ───────────────────
-  tavern: {
-    scenarios: [
-      {
-        id: "innkeeper",
-        name: "Innkeeper Bertha",
-        description: "Order food and drink at the tavern",
-        dialogue: [
-          { npc: "Welcome to The Golden Tongue Tavern, traveler! What can I get for you?", expectedTopics: ["food", "drink", "menu", "eat", "hungry", "ale", "beer", "water", "meal", "order"] },
-          { npc: "Excellent choice! That'll be 5 gold coins. Where are you headed on your journey?", expectedTopics: ["quest", "adventure", "travel", "journey", "going", "heading", "destination", "mission", "explore", "town", "city", "village"] },
-          { npc: "Sounds dangerous! A brave soul like you should be well-rested. Need a room for the night?", expectedTopics: ["yes", "no", "room", "stay", "night", "sleep", "rest", "bed", "tired", "maybe"] },
-          { npc: "Safe travels, hero! May the words of power guide your path!", expectedTopics: ["thank", "goodbye", "bye", "farewell", "thanks", "see you", "later", "cheers"] }
-        ]
-      },
-      {
-        id: "merchant",
-        name: "Merchant Aldric",
-        description: "Haggle with the traveling merchant",
-        dialogue: [
-          { npc: "Psst! Hey you! I've got rare magical items for sale. Interested?", expectedTopics: ["yes", "what", "show", "items", "interested", "sure", "tell me", "sell", "buy", "look"] },
-          { npc: "I have enchanted scrolls, potions of wisdom, and a legendary grammar amulet. What catches your eye?", expectedTopics: ["scroll", "potion", "amulet", "how much", "price", "cost", "all", "one", "grammar", "wisdom"] },
-          { npc: "Ah, you have a keen eye! That one costs 50 gold. But for a fellow adventurer, I could do 40. Deal?", expectedTopics: ["deal", "yes", "expensive", "no", "cheaper", "too much", "lower", "accept", "agree", "okay"] },
-          { npc: "Pleasure doing business! Come back anytime you need supplies for your quest!", expectedTopics: ["thank", "goodbye", "bye", "farewell", "thanks", "will do", "okay", "sure"] }
-        ]
-      },
-      {
-        id: "bard",
-        name: "Bard Melodia",
-        description: "Learn a song from the traveling bard",
-        dialogue: [
-          { npc: "Hello there! I'm Melodia, the wandering bard. Would you like to hear a tale or learn a song?", expectedTopics: ["tale", "story", "song", "yes", "sing", "learn", "hear", "tell", "play", "music"] },
-          { npc: "This song is about the hero who defeated the Accent Dragon. Can you repeat after me? 'The hero spoke with perfect voice'", expectedTopics: ["the hero spoke with perfect voice", "hero", "voice", "repeat", "spoke"] },
-          { npc: "Beautiful! Now the next line: 'And every word was their own choice'", expectedTopics: ["and every word was their own choice", "word", "choice", "every"] },
-          { npc: "Magnificent! You have the voice of a true bard! Perhaps we'll sing together again someday.", expectedTopics: ["thank", "goodbye", "again", "fun", "thanks", "great", "wonderful", "amazing", "yes"] }
-        ]
-      },
-      {
-        id: "quest_giver",
-        name: "Elder Sage Theron",
-        description: "Receive wisdom from the village elder",
-        dialogue: [
-          { npc: "Ah, young hero. I sense great potential in you. Tell me, why do you seek to master the English tongue?", expectedTopics: ["learn", "improve", "speak", "better", "practice", "study", "communicate", "understand", "travel", "work", "school", "fun"] },
-          { npc: "A noble pursuit! The power of language can open doors that no key can. What is the hardest part for you?", expectedTopics: ["pronunciation", "grammar", "vocabulary", "speaking", "listening", "reading", "writing", "words", "sentences", "confidence", "nervous"] },
-          { npc: "I understand. Remember: every master was once a beginner. What motivates you to keep going?", expectedTopics: ["friends", "family", "career", "travel", "love", "passion", "dream", "goal", "future", "want", "need", "must"] },
-          { npc: "Your determination inspires me. Go forth, hero! The realms await your voice!", expectedTopics: ["thank", "goodbye", "bye", "farewell", "thanks", "ready", "will", "go", "yes"] }
-        ]
-      }
-    ]
-  },
+  // ── THE TAVERN: Free Practice ──────────────────────────────
+  tavern: [
+    {
+      id: "innkeeper",
+      npc: "innkeeper",
+      name: "Innkeeper Bertha",
+      description: "Chat about food, travel, and life",
+      topics: [
+        {
+          npcGreeting: "Welcome to The Golden Tongue Tavern! What brings you here today, traveler?",
+          prompt: "Tell the innkeeper why you're here",
+          topicKeywords: ["travel", "journey", "quest", "adventure", "hungry", "thirsty", "tired", "rest", "explore", "looking", "visit", "need", "want", "came", "here"],
+          bonusVocab: ["weary", "famished", "wanderer", "destination", "respite"],
+          minWords: 5,
+          npcResponses: {
+            great: "A true adventurer! Well, you've come to the right place! What would you like to eat or drink?",
+            good: "Welcome indeed! Make yourself at home. Can I get you anything?",
+            weak: "That's nice! Tell me a bit more about your journey!",
+            off_topic: "Well, whatever the reason, you're welcome here! So what brings you to these parts?"
+          }
+        },
+        {
+          npcGreeting: "I make the best stew in the realm! What's your favorite food?",
+          prompt: "Tell Bertha about your favorite food",
+          topicKeywords: ["food", "eat", "love", "favorite", "delicious", "cook", "meal", "dish", "taste", "chicken", "fish", "pasta", "rice", "soup", "salad", "bread", "sweet", "spicy"],
+          bonusVocab: ["appetizing", "savory", "culinary", "exquisite", "delectable"],
+          minWords: 5,
+          npcResponses: {
+            great: "Oh my, that sounds absolutely delicious! You really know your food!",
+            good: "Yum! I should try making that sometime!",
+            weak: "Sounds tasty! What does it taste like? What's in it?",
+            off_topic: "Ha! I asked about food, dear! What's your favorite thing to eat?"
+          }
+        },
+        {
+          npcGreeting: "You know, I've always dreamed of traveling. Where have you been on your adventures?",
+          prompt: "Tell Bertha about a place you've visited",
+          topicKeywords: ["visit", "travel", "went", "saw", "place", "city", "country", "beautiful", "people", "culture", "food", "amazing", "different", "experience", "remember"],
+          bonusVocab: ["fascinating", "memorable", "breathtaking", "diverse", "extraordinary"],
+          minWords: 5,
+          npcResponses: {
+            great: "What a wonderful tale! You've been to such amazing places!",
+            good: "That sounds like quite the adventure! I'm jealous!",
+            weak: "Interesting! What was the best part of your visit?",
+            off_topic: "Tell me about somewhere you've traveled to! I love hearing travel stories."
+          }
+        }
+      ]
+    },
+    {
+      id: "merchant",
+      npc: "merchant",
+      name: "Merchant Aldric",
+      description: "Discuss business, money, and deals",
+      topics: [
+        {
+          npcGreeting: "Psst! Hey you! I've got some ideas for making gold. What kind of work do you do?",
+          prompt: "Tell the merchant about your work",
+          topicKeywords: ["work", "job", "do", "make", "money", "business", "company", "office", "team", "skill", "sell", "buy", "trade", "help", "create", "build"],
+          bonusVocab: ["profession", "enterprise", "revenue", "negotiate", "investment"],
+          minWords: 5,
+          npcResponses: {
+            great: "A shrewd professional! I can tell you know the value of hard work and gold!",
+            good: "Interesting line of work! There's always gold to be made!",
+            weak: "Hmm, tell me more. What exactly do you do to earn your keep?",
+            off_topic: "I asked about your work, friend! How do you earn your gold?"
+          }
+        },
+        {
+          npcGreeting: "If you had a thousand gold coins, what would you spend them on?",
+          prompt: "Tell Aldric what you'd buy with lots of money",
+          topicKeywords: ["buy", "spend", "money", "gold", "house", "travel", "car", "clothes", "food", "gift", "save", "invest", "help", "family", "want", "dream", "would"],
+          bonusVocab: ["investment", "luxurious", "charitable", "extravagant", "practical"],
+          minWords: 5,
+          npcResponses: {
+            great: "Ha! Now THAT'S how to spend gold! You've got expensive taste — I like it!",
+            good: "Not bad! A mix of fun and practical spending!",
+            weak: "Come on, dream bigger! A thousand gold is a lot! What would you REALLY buy?",
+            off_topic: "Gold coins, friend! What would you buy if you had loads of money?"
+          }
+        }
+      ]
+    },
+    {
+      id: "bard_npc",
+      npc: "bard_npc",
+      name: "Bard Melodia",
+      description: "Talk about music, stories, and creativity",
+      topics: [
+        {
+          npcGreeting: "Hello! I'm Melodia, the wandering bard. Do you enjoy music? What kind do you listen to?",
+          prompt: "Tell Melodia about your music taste",
+          topicKeywords: ["music", "song", "listen", "like", "love", "favorite", "sing", "play", "band", "artist", "pop", "rock", "classical", "jazz", "hip", "dance", "guitar", "piano", "drum", "radio"],
+          bonusVocab: ["melody", "rhythm", "harmonious", "genre", "acoustic", "lyrical"],
+          minWords: 5,
+          npcResponses: {
+            great: "Wonderful taste! Music really is the universal language, isn't it?",
+            good: "Nice! I'd love to play some of that style for you!",
+            weak: "Tell me more! What songs make you feel happy?",
+            off_topic: "I was asking about music! What kind of songs do you enjoy?"
+          }
+        },
+        {
+          npcGreeting: "Every person has a story. What's the most interesting thing that ever happened to you?",
+          prompt: "Share an interesting story with Melodia",
+          topicKeywords: ["story", "happened", "one", "day", "time", "interesting", "funny", "scary", "amazing", "surprise", "remember", "friend", "went", "saw", "found", "never", "before"],
+          bonusVocab: ["extraordinary", "unforgettable", "dramatic", "coincidence", "adventure"],
+          minWords: 5,
+          npcResponses: {
+            great: "What a tale! That would make a fantastic song! You're a natural storyteller!",
+            good: "Interesting! I can see the beginning of a ballad there!",
+            weak: "Go on! What happened next? Don't leave me in suspense!",
+            off_topic: "I want to hear YOUR story! Something exciting that happened to you!"
+          }
+        }
+      ]
+    },
+    {
+      id: "elder_sage",
+      npc: "elder_sage",
+      name: "Elder Sage Theron",
+      description: "Discuss wisdom, goals, and philosophy",
+      topics: [
+        {
+          npcGreeting: "Ah, young hero. Tell me — why do you seek to improve your English? What drives you?",
+          prompt: "Tell the sage why you're learning English",
+          topicKeywords: ["learn", "English", "speak", "improve", "better", "want", "need", "work", "travel", "study", "communicate", "friend", "world", "opportunity", "dream", "future", "goal"],
+          bonusVocab: ["aspiration", "motivation", "proficiency", "determination", "enlightenment"],
+          minWords: 5,
+          npcResponses: {
+            great: "A noble and well-articulated purpose! Your determination will take you far!",
+            good: "A worthy goal! Keep practicing and you'll achieve it.",
+            weak: "Can you tell me more about why it matters to you?",
+            off_topic: "I asked about your motivation for learning English, young one!"
+          }
+        },
+        {
+          npcGreeting: "What is your greatest dream for the future? What do you hope to achieve?",
+          prompt: "Share your dreams and goals with the sage",
+          topicKeywords: ["dream", "future", "goal", "want", "hope", "achieve", "plan", "become", "success", "happy", "family", "career", "travel", "create", "build", "help", "world", "life"],
+          bonusVocab: ["aspiration", "ambition", "vision", "fulfillment", "legacy", "prosperity"],
+          minWords: 5,
+          npcResponses: {
+            great: "What a magnificent vision! The words you use reveal the depth of your dreams!",
+            good: "Beautiful dreams! I believe you can make them reality.",
+            weak: "Tell me more about this dream. What steps will you take?",
+            off_topic: "I want to hear about YOUR dreams and goals for the future!"
+          }
+        },
+        {
+          npcGreeting: "If you could give one piece of advice to everyone in the world, what would it be?",
+          prompt: "Share your wisdom with the sage",
+          topicKeywords: ["advice", "think", "believe", "important", "always", "never", "should", "people", "life", "learn", "love", "kind", "help", "try", "give", "respect", "listen", "patience"],
+          bonusVocab: ["wisdom", "philosophy", "compassion", "perseverance", "empathy", "profound"],
+          minWords: 5,
+          npcResponses: {
+            great: "Truly wise words! You speak with the insight of someone far beyond your years!",
+            good: "Good advice! The world would be better if more people thought that way.",
+            weak: "An interesting thought. Can you explain why you believe this?",
+            off_topic: "What advice would YOU give to make the world a better place?"
+          }
+        }
+      ]
+    }
+  ],
 
-  // ── SHOP ITEMS ───────────────────────────────────────────
+  // ── SHOP ITEMS ─────────────────────────────────────────────
   shop: {
     items: [
-      { id: "hint_scroll", name: "Hint Scroll", description: "Reveals an extra hint during challenges", price: 30, icon: "scroll", type: "consumable", effect: "hint" },
-      { id: "shield_potion", name: "Shield Potion", description: "Prevents 1 heart loss on wrong answer", price: 50, icon: "shield", type: "consumable", effect: "shield" },
+      { id: "hint_scroll", name: "Hint Scroll", description: "Reveals topic keywords during challenges", price: 30, icon: "scroll", type: "consumable", effect: "hint" },
+      { id: "shield_potion", name: "Shield Potion", description: "Prevents 1 heart loss on poor score", price: 50, icon: "shield", type: "consumable", effect: "shield" },
       { id: "xp_potion", name: "XP Elixir", description: "Doubles XP earned for 5 challenges", price: 75, icon: "potion", type: "consumable", effect: "double_xp", duration: 5 },
       { id: "gold_amulet", name: "Gold Amulet", description: "Earn 50% more gold for 10 challenges", price: 100, icon: "amulet", type: "consumable", effect: "gold_boost", duration: 10 },
-      { id: "time_crystal", name: "Time Crystal", description: "Adds 15 extra seconds in The Arena", price: 60, icon: "crystal", type: "consumable", effect: "extra_time" },
+      { id: "time_crystal", name: "Time Crystal", description: "Adds 15 extra seconds in Quick Wit Arena", price: 60, icon: "crystal", type: "consumable", effect: "extra_time" },
       { id: "phoenix_feather", name: "Phoenix Feather", description: "Revive with full hearts if defeated in boss battle", price: 150, icon: "feather", type: "consumable", effect: "revive" },
       { id: "bard_hat", name: "Bard's Hat", description: "A fancy hat for your character", price: 200, icon: "hat", type: "cosmetic", slot: "head" },
       { id: "wizard_robe", name: "Wizard's Robe", description: "An enchanted robe that shimmers with power", price: 250, icon: "robe", type: "cosmetic", slot: "body" },
@@ -568,16 +694,16 @@ const GAME_DATA = {
     ]
   },
 
-  // ── ACHIEVEMENTS ─────────────────────────────────────────
+  // ── ACHIEVEMENTS ───────────────────────────────────────────
   achievements: [
     { id: "first_word", name: "First Word", description: "Complete your first challenge", icon: "star", xpReward: 50 },
-    { id: "echo_novice", name: "Echo Novice", description: "Complete 10 Echo Valley challenges", icon: "megaphone", xpReward: 100 },
-    { id: "echo_master", name: "Echo Master", description: "Complete 50 Echo Valley challenges", icon: "megaphone", xpReward: 500 },
-    { id: "wordsmith", name: "Wordsmith", description: "Learn 25 vocabulary words", icon: "book", xpReward: 150 },
-    { id: "lexicon_legend", name: "Lexicon Legend", description: "Learn 100 vocabulary words", icon: "book", xpReward: 750 },
-    { id: "spell_weaver", name: "Spell Weaver", description: "Complete 20 Spell Tower challenges", icon: "wand", xpReward: 200 },
-    { id: "speed_demon", name: "Speed Demon", description: "Score 500+ points in The Arena", icon: "lightning", xpReward: 300 },
-    { id: "arena_champion", name: "Arena Champion", description: "Score 1000+ points in The Arena", icon: "trophy", xpReward: 600 },
+    { id: "storyteller_10", name: "Story Novice", description: "Complete 10 Storyteller's Glen challenges", icon: "megaphone", xpReward: 100 },
+    { id: "storyteller_50", name: "Story Master", description: "Complete 50 Storyteller's Glen challenges", icon: "megaphone", xpReward: 500 },
+    { id: "wordsmith_10", name: "Wordsmith Apprentice", description: "Complete 10 Workshop challenges", icon: "book", xpReward: 100 },
+    { id: "wordsmith_50", name: "Wordsmith Legend", description: "Complete 50 Workshop challenges", icon: "book", xpReward: 500 },
+    { id: "council_10", name: "Debater", description: "Complete 10 Council Chamber challenges", icon: "wand", xpReward: 200 },
+    { id: "speed_demon", name: "Speed Demon", description: "Score 500+ points in Quick Wit Arena", icon: "lightning", xpReward: 300 },
+    { id: "arena_champion", name: "Arena Champion", description: "Score 1000+ points in Quick Wit Arena", icon: "trophy", xpReward: 600 },
     { id: "dragon_slayer", name: "Dragon Slayer", description: "Defeat the Accent Dragon", icon: "dragon", xpReward: 500 },
     { id: "boss_crusher", name: "Boss Crusher", description: "Defeat all 5 bosses", icon: "skull", xpReward: 1000 },
     { id: "streak_3", name: "Dedicated Student", description: "Maintain a 3-day streak", icon: "fire", xpReward: 100 },
@@ -588,29 +714,30 @@ const GAME_DATA = {
     { id: "level_25", name: "Legendary Champion", description: "Reach Level 25", icon: "shield", xpReward: 500 },
     { id: "level_50", name: "Grand Master", description: "Reach Level 50", icon: "crown", xpReward: 2000 },
     { id: "gold_hoarder", name: "Gold Hoarder", description: "Accumulate 1000 gold", icon: "coins", xpReward: 200 },
-    { id: "perfect_10", name: "Perfect Ten", description: "Get 10 perfect scores in a row", icon: "star", xpReward: 400 },
-    { id: "tavern_regular", name: "Tavern Regular", description: "Complete all tavern conversations", icon: "beer", xpReward: 300 },
+    { id: "three_stars_25", name: "Triple Threat", description: "Get 3 stars on 25 challenges", icon: "stars", xpReward: 350 },
+    { id: "tavern_regular", name: "Tavern Regular", description: "Talk to all tavern NPCs", icon: "beer", xpReward: 300 },
     { id: "shopaholic", name: "Shopaholic", description: "Buy 10 items from the shop", icon: "bag", xpReward: 150 },
     { id: "daily_hero", name: "Daily Hero", description: "Complete all 3 daily quests in one day", icon: "sun", xpReward: 200 },
-    { id: "three_stars", name: "Triple Threat", description: "Get 3 stars on 25 challenges", icon: "stars", xpReward: 350 },
-    { id: "comeback_kid", name: "Comeback Kid", description: "Win a boss battle with only 1 heart remaining", icon: "heart", xpReward: 400 }
+    { id: "comeback_kid", name: "Comeback Kid", description: "Win a boss battle with only 1 heart remaining", icon: "heart_icon", xpReward: 400 },
+    { id: "chatterbox", name: "Chatterbox", description: "Speak 1000 total words across all challenges", icon: "microphone", xpReward: 500 },
+    { id: "eloquent", name: "Eloquent Speaker", description: "Score 90+ on a single conversation", icon: "star", xpReward: 400 }
   ],
 
-  // ── DAILY QUEST TEMPLATES ────────────────────────────────
+  // ── DAILY QUEST TEMPLATES ──────────────────────────────────
   dailyQuests: [
-    { id: "dq_echo", type: "echo_valley", description: "Complete {count} pronunciation challenges", countRange: [3, 5], xpReward: 75, goldReward: 25 },
-    { id: "dq_vocab", type: "word_forge", description: "Learn {count} new vocabulary words", countRange: [3, 7], xpReward: 75, goldReward: 25 },
-    { id: "dq_spell", type: "spell_tower", description: "Build {count} correct sentences", countRange: [2, 5], xpReward: 100, goldReward: 30 },
-    { id: "dq_arena", type: "arena", description: "Score {count}+ points in The Arena", countRange: [200, 500], xpReward: 100, goldReward: 35 },
+    { id: "dq_story", type: "storytellers_glen", description: "Complete {count} storytelling challenges", countRange: [2, 4], xpReward: 75, goldReward: 25 },
+    { id: "dq_vocab", type: "wordsmiths_workshop", description: "Complete {count} vocabulary conversations", countRange: [2, 4], xpReward: 75, goldReward: 25 },
+    { id: "dq_council", type: "council_chamber", description: "Win {count} debates in the Council", countRange: [1, 3], xpReward: 100, goldReward: 30 },
+    { id: "dq_arena", type: "quick_wit_arena", description: "Score {count}+ points in Quick Wit Arena", countRange: [200, 500], xpReward: 100, goldReward: 35 },
     { id: "dq_boss", type: "boss", description: "Deal {count} damage to any boss", countRange: [30, 60], xpReward: 125, goldReward: 40 },
-    { id: "dq_streak", type: "streak", description: "Get a {count}-answer streak in any mode", countRange: [3, 7], xpReward: 80, goldReward: 20 },
-    { id: "dq_perfect", type: "perfect", description: "Get {count} perfect (3-star) answers", countRange: [2, 5], xpReward: 100, goldReward: 30 },
-    { id: "dq_tavern", type: "tavern", description: "Complete a tavern conversation", countRange: [1, 1], xpReward: 60, goldReward: 20 },
-    { id: "dq_any", type: "any", description: "Complete {count} challenges in any realm", countRange: [5, 10], xpReward: 80, goldReward: 25 },
-    { id: "dq_time", type: "timed", description: "Spend {count} minutes practicing", countRange: [5, 15], xpReward: 90, goldReward: 30 }
+    { id: "dq_stars", type: "perfect", description: "Get {count} three-star scores", countRange: [2, 5], xpReward: 100, goldReward: 30 },
+    { id: "dq_tavern", type: "tavern", description: "Have a tavern conversation", countRange: [1, 1], xpReward: 60, goldReward: 20 },
+    { id: "dq_any", type: "any", description: "Complete {count} challenges in any realm", countRange: [3, 8], xpReward: 80, goldReward: 25 },
+    { id: "dq_words", type: "words_spoken", description: "Speak {count} total words", countRange: [50, 150], xpReward: 90, goldReward: 30 },
+    { id: "dq_followup", type: "followup", description: "Complete {count} follow-up rounds", countRange: [1, 3], xpReward: 80, goldReward: 25 }
   ],
 
-  // ── LEVEL THRESHOLDS ─────────────────────────────────────
+  // ── LEVEL THRESHOLDS ───────────────────────────────────────
   levelThresholds: (function() {
     const thresholds = [0];
     for (let i = 1; i <= 50; i++) {
@@ -619,109 +746,60 @@ const GAME_DATA = {
     return thresholds;
   })(),
 
-  // ── REALM UNLOCK LEVELS ──────────────────────────────────
+  // ── REALM UNLOCK LEVELS ────────────────────────────────────
   realmUnlocks: {
-    echo_valley: 1,
-    word_forge: 1,
-    spell_tower: 5,
-    arena: 10,
+    storytellers_glen: 1,
+    wordsmiths_workshop: 1,
+    council_chamber: 5,
+    quick_wit_arena: 10,
     dragons_lair: 15,
     tavern: 1
   },
 
-  // ── BOSS UNLOCK LEVELS ───────────────────────────────────
+  // ── BOSS UNLOCK LEVELS ─────────────────────────────────────
   bossUnlocks: {
     grammar_goblin: 15,
     vocab_vampire: 18,
-    accent_dragon: 22,
     idiom_specter: 20,
+    accent_dragon: 22,
     tense_titan: 25
   },
 
-  // ── CLASS DEFINITIONS ────────────────────────────────────
+  // ── CLASS DEFINITIONS ──────────────────────────────────────
   classes: {
     bard: {
       name: "Bard",
-      description: "Master of spoken word and song. Bonus XP in Echo Valley.",
-      bonus: { realm: "echo_valley", xpMultiplier: 1.25 },
+      description: "Master of spoken word and song. Bonus XP in Storyteller's Glen.",
+      bonus: { realm: "storytellers_glen", xpMultiplier: 1.25 },
       avatar: "bard",
       color: "#e6a817"
     },
     wizard: {
       name: "Wizard",
-      description: "Scholar of language and grammar. Bonus XP in Spell Tower.",
-      bonus: { realm: "spell_tower", xpMultiplier: 1.25 },
+      description: "Scholar of language and grammar. Bonus XP in Council Chamber.",
+      bonus: { realm: "council_chamber", xpMultiplier: 1.25 },
       avatar: "wizard",
       color: "#6a5acd"
     },
     knight: {
       name: "Knight",
-      description: "Brave warrior of vocabulary. Bonus XP in Word Forge.",
-      bonus: { realm: "word_forge", xpMultiplier: 1.25 },
+      description: "Brave warrior of vocabulary. Bonus XP in Wordsmith's Workshop.",
+      bonus: { realm: "wordsmiths_workshop", xpMultiplier: 1.25 },
       avatar: "knight",
       color: "#c0c0c0"
     }
   },
 
-  // ── EMOJI ICONS ──────────────────────────────────────────
-  icons: {
-    // Realms
-    echo_valley: "\u{1F3D4}\u{FE0F}",
-    word_forge: "\u{2694}\u{FE0F}",
-    spell_tower: "\u{1F9D9}",
-    arena: "\u{1F3DF}\u{FE0F}",
-    dragons_lair: "\u{1F409}",
-    tavern: "\u{1F37A}",
-    // UI
-    heart: "\u{2764}\u{FE0F}",
-    gold: "\u{1FA99}",
-    xp: "\u{2B50}",
-    star_full: "\u{2B50}",
-    star_empty: "\u{2606}",
-    shield: "\u{1F6E1}\u{FE0F}",
-    potion: "\u{1F9EA}",
-    scroll: "\u{1F4DC}",
-    crystal: "\u{1F48E}",
-    feather: "\u{1FAB6}",
-    crown: "\u{1F451}",
-    fire: "\u{1F525}",
-    sword: "\u{2694}\u{FE0F}",
-    book: "\u{1F4D6}",
-    trophy: "\u{1F3C6}",
-    lightning: "\u{26A1}",
-    skull: "\u{1F480}",
-    // Classes
-    bard: "\u{1F3B6}",
-    wizard: "\u{1F9D9}",
-    knight: "\u{1F6E1}\u{FE0F}",
-    // Bosses
-    goblin: "\u{1F47A}",
-    vampire: "\u{1F9DB}",
-    dragon: "\u{1F432}",
-    ghost: "\u{1F47B}",
-    titan: "\u{1F9DE}",
-    // Shop
-    hat: "\u{1F3A9}",
-    robe: "\u{1F9E5}",
-    armor: "\u{1F6E1}\u{FE0F}",
-    cloak: "\u{1F9E3}",
-    amulet: "\u{1F4FF}",
-    bag: "\u{1F6CD}\u{FE0F}",
-    // Misc
-    microphone: "\u{1F3A4}",
-    speaker: "\u{1F50A}",
-    timer: "\u{23F1}\u{FE0F}",
-    check: "\u{2705}",
-    cross: "\u{274C}",
-    lock: "\u{1F512}",
-    unlock: "\u{1F513}",
-    map: "\u{1F5FA}\u{FE0F}",
-    coins: "\u{1FA99}",
-    sun: "\u{2600}\u{FE0F}",
-    beer: "\u{1F37A}",
-    stars: "\u{1F31F}",
-    megaphone: "\u{1F4E3}",
-    wand: "\u{1FA84}",
-    heart_icon: "\u{2764}\u{FE0F}"
-  }
+  // ── REALM DISPLAY NAMES ────────────────────────────────────
+  realmNames: {
+    storytellers_glen: "Storyteller's Glen",
+    wordsmiths_workshop: "Wordsmith's Workshop",
+    council_chamber: "Council Chamber",
+    quick_wit_arena: "Quick Wit Arena",
+    dragons_lair: "Dragon's Lair",
+    tavern: "The Tavern"
+  },
+
+  // ── CONNECTORS for sentence quality scoring ────────────────
+  connectors: ["because", "however", "although", "therefore", "furthermore", "moreover", "nevertheless", "consequently", "meanwhile", "additionally", "since", "while", "despite", "though", "unless", "otherwise", "finally", "first", "second", "then", "next", "also", "but", "so", "and", "yet", "still", "besides", "instead", "for example", "in addition", "on the other hand", "as a result", "in conclusion", "in fact", "of course"]
 };

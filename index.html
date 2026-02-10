@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Speech - Fantasy RPG English Practice</title>
+  <title>Free Speech v2 - Fantasy RPG English Practice</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=MedievalSharp&family=Lato:wght@400;700&display=swap" rel="stylesheet">
@@ -12,10 +12,12 @@
 <body>
   <div id="app">
 
-    <!-- ══════ TITLE SCREEN ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         1. TITLE SCREEN
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-title" class="screen active">
       <div class="title-container">
-        <div class="title-emblem">&#x1F3F0;</div>
+        <div class="title-emblem" id="title-emblem"></div>
         <h1 class="game-title">Free Speech</h1>
         <p class="game-subtitle">A Fantasy RPG English Adventure</p>
         <p class="game-tagline">Master the English tongue. Become the hero.</p>
@@ -23,11 +25,13 @@
           <button class="btn btn-primary btn-lg" id="btn-new-game">New Adventure</button>
           <button class="btn btn-secondary btn-lg" id="btn-continue" style="display:none;">Continue Quest</button>
         </div>
-        <p class="mic-notice">&#x1F3A4; This game uses your microphone for speech recognition</p>
+        <p class="mic-notice">This game uses your microphone for speech recognition</p>
       </div>
     </div>
 
-    <!-- ══════ CHARACTER CREATION ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         2. CHARACTER CREATION
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-character" class="screen">
       <div class="panel panel-wide">
         <h2 class="panel-title">Create Your Hero</h2>
@@ -40,24 +44,28 @@
         <div class="form-group">
           <label class="form-label">Choose Your Class</label>
           <div class="class-selection">
+
             <div class="class-card" data-class="bard">
-              <div class="class-icon">&#x1F3B6;</div>
+              <div class="class-portrait" id="class-portrait-bard"></div>
               <h3>Bard</h3>
               <p>Master of spoken word and song</p>
-              <p class="class-bonus">+25% XP in Echo Valley</p>
+              <p class="class-bonus">+25% XP in Storyteller's Glen</p>
             </div>
+
             <div class="class-card" data-class="wizard">
-              <div class="class-icon">&#x1F9D9;</div>
+              <div class="class-portrait" id="class-portrait-wizard"></div>
               <h3>Wizard</h3>
               <p>Scholar of language and grammar</p>
-              <p class="class-bonus">+25% XP in Spell Tower</p>
+              <p class="class-bonus">+25% XP in Council Chamber</p>
             </div>
+
             <div class="class-card" data-class="knight">
-              <div class="class-icon">&#x1F6E1;&#xFE0F;</div>
+              <div class="class-portrait" id="class-portrait-knight"></div>
               <h3>Knight</h3>
               <p>Brave warrior of vocabulary</p>
-              <p class="class-bonus">+25% XP in Word Forge</p>
+              <p class="class-bonus">+25% XP in Wordsmith's Workshop</p>
             </div>
+
           </div>
         </div>
 
@@ -65,12 +73,14 @@
       </div>
     </div>
 
-    <!-- ══════ WORLD MAP ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         3. WORLD MAP
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-map" class="screen">
       <div class="map-header">
         <div class="player-bar">
           <div class="player-info">
-            <span class="player-avatar" id="map-avatar"></span>
+            <div class="player-avatar" id="map-avatar"></div>
             <span class="player-name" id="map-name"></span>
             <span class="player-level" id="map-level">Lv.1</span>
           </div>
@@ -81,204 +91,230 @@
               </div>
               <span class="xp-text" id="map-xp-text">0/100 XP</span>
             </div>
-            <div class="stat-gold">&#x1FA99; <span id="map-gold">0</span></div>
-            <div class="stat-streak">&#x1F525; <span id="map-streak">0</span></div>
+            <div class="stat-gold"><span class="gold-icon"></span> <span id="map-gold">0</span></div>
+            <div class="stat-streak"><span class="streak-icon"></span> <span id="map-streak">0</span></div>
           </div>
         </div>
         <div class="map-buttons">
-          <button class="btn btn-small" id="btn-profile" title="Profile">&#x1F464;</button>
-          <button class="btn btn-small" id="btn-daily-quests" title="Daily Quests">&#x1F4DC;</button>
-          <button class="btn btn-small" id="btn-shop" title="Shop">&#x1F6CD;&#xFE0F;</button>
-          <button class="btn btn-small" id="btn-achievements" title="Achievements">&#x1F3C6;</button>
+          <button class="btn btn-small" id="btn-profile" title="Profile">Profile</button>
+          <button class="btn btn-small" id="btn-daily-quests" title="Daily Quests">Quests</button>
+          <button class="btn btn-small" id="btn-shop" title="Shop">Shop</button>
+          <button class="btn btn-small" id="btn-achievements" title="Achievements">Achievements</button>
         </div>
       </div>
 
       <div class="map-world">
         <h2 class="map-title">The Realm of Eloquence</h2>
         <div class="realm-grid">
-          <div class="realm-card" data-realm="echo_valley">
-            <div class="realm-icon">&#x1F3D4;&#xFE0F;</div>
+
+          <!-- Storyteller's Glen -->
+          <div class="realm-card" data-realm="storytellers_glen">
+            <div class="realm-illustration" id="realm-ill-storytellers_glen"></div>
             <div class="realm-info">
-              <h3>Echo Valley</h3>
-              <p>Pronunciation Practice</p>
+              <h3>Storyteller's Glen</h3>
+              <p>Describe &amp; Narrate</p>
               <span class="realm-level">Level 1+</span>
             </div>
-            <div class="realm-lock" style="display:none;">&#x1F512;</div>
+            <div class="realm-lock" style="display:none;">locked</div>
           </div>
 
-          <div class="realm-card" data-realm="word_forge">
-            <div class="realm-icon">&#x2694;&#xFE0F;</div>
+          <!-- Wordsmith's Workshop -->
+          <div class="realm-card" data-realm="wordsmiths_workshop">
+            <div class="realm-illustration" id="realm-ill-wordsmiths_workshop"></div>
             <div class="realm-info">
-              <h3>Word Forge</h3>
-              <p>Vocabulary Mastery</p>
+              <h3>Wordsmith's Workshop</h3>
+              <p>Themed Vocabulary</p>
               <span class="realm-level">Level 1+</span>
             </div>
-            <div class="realm-lock" style="display:none;">&#x1F512;</div>
+            <div class="realm-lock" style="display:none;">locked</div>
           </div>
 
-          <div class="realm-card" data-realm="spell_tower">
-            <div class="realm-icon">&#x1F9D9;</div>
+          <!-- Council Chamber -->
+          <div class="realm-card" data-realm="council_chamber">
+            <div class="realm-illustration" id="realm-ill-council_chamber"></div>
             <div class="realm-info">
-              <h3>Spell Tower</h3>
-              <p>Sentence Building</p>
+              <h3>Council Chamber</h3>
+              <p>Opinion &amp; Argument</p>
               <span class="realm-level">Level 5+</span>
             </div>
-            <div class="realm-lock">&#x1F512;</div>
+            <div class="realm-lock">locked</div>
           </div>
 
-          <div class="realm-card" data-realm="arena">
-            <div class="realm-icon">&#x1F3DF;&#xFE0F;</div>
+          <!-- Quick Wit Arena -->
+          <div class="realm-card" data-realm="quick_wit_arena">
+            <div class="realm-illustration" id="realm-ill-quick_wit_arena"></div>
             <div class="realm-info">
-              <h3>The Arena</h3>
-              <p>Speed Challenge</p>
+              <h3>Quick Wit Arena</h3>
+              <p>Timed Topics</p>
               <span class="realm-level">Level 10+</span>
             </div>
-            <div class="realm-lock">&#x1F512;</div>
+            <div class="realm-lock">locked</div>
           </div>
 
+          <!-- Dragon's Lair -->
           <div class="realm-card" data-realm="dragons_lair">
-            <div class="realm-icon">&#x1F409;</div>
+            <div class="realm-illustration" id="realm-ill-dragons_lair"></div>
             <div class="realm-info">
               <h3>Dragon's Lair</h3>
               <p>Boss Battles</p>
               <span class="realm-level">Level 15+</span>
             </div>
-            <div class="realm-lock">&#x1F512;</div>
+            <div class="realm-lock">locked</div>
           </div>
 
+          <!-- The Tavern -->
           <div class="realm-card" data-realm="tavern">
-            <div class="realm-icon">&#x1F37A;</div>
+            <div class="realm-illustration" id="realm-ill-tavern"></div>
             <div class="realm-info">
               <h3>The Tavern</h3>
               <p>Free Practice</p>
               <span class="realm-level">Always Open</span>
             </div>
           </div>
+
         </div>
       </div>
     </div>
 
-    <!-- ══════ ECHO VALLEY ══════ -->
-    <div id="screen-echo" class="screen">
+    <!-- ══════════════════════════════════════════════════════════
+         4. CONVERSATION SCREEN (shared: Glen, Workshop, Council)
+         ══════════════════════════════════════════════════════════ -->
+    <div id="screen-conversation" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="echo-back">&#x2190; Map</button>
-        <h2>&#x1F3D4;&#xFE0F; Echo Valley</h2>
-        <div class="hearts" id="echo-hearts"></div>
+        <button class="btn btn-back" id="conv-back">&larr; Map</button>
+        <h2 id="conv-realm-title">Storyteller's Glen</h2>
+        <div class="hearts" id="conv-hearts"></div>
       </div>
+
       <div class="game-area">
-        <div class="difficulty-selector" id="echo-difficulty">
-          <button class="btn btn-diff active" data-diff="beginner">Beginner</button>
-          <button class="btn btn-diff" data-diff="intermediate">Intermediate</button>
-          <button class="btn btn-diff" data-diff="advanced">Advanced</button>
-        </div>
-        <div class="challenge-card" id="echo-challenge">
-          <p class="challenge-instruction">Listen and repeat the phrase:</p>
-          <div class="challenge-text" id="echo-text"></div>
-          <div class="phonetic-hint" id="echo-phonetic"></div>
-          <div class="challenge-controls">
-            <button class="btn btn-circle btn-listen" id="echo-listen" title="Listen">&#x1F50A;</button>
-            <button class="btn btn-circle btn-speak" id="echo-speak" title="Speak">&#x1F3A4;</button>
+        <!-- NPC Portrait -->
+        <div class="conv-npc-section">
+          <div id="conv-npc-portrait" class="conv-npc-portrait"></div>
+          <div class="conv-dialogue-bubble" id="conv-dialogue-bubble">
+            <p id="conv-npc-dialogue">Welcome, traveler! Let me hear your tale...</p>
           </div>
-          <div class="speech-result" id="echo-result" style="display:none;">
-            <p class="result-text" id="echo-result-text"></p>
-            <div class="result-stars" id="echo-result-stars"></div>
-            <p class="result-xp" id="echo-result-xp"></p>
-          </div>
-          <button class="btn btn-primary" id="echo-next" style="display:none;">Next Challenge</button>
         </div>
+
+        <!-- Topic / Prompt -->
+        <div class="conv-prompt-section">
+          <div class="conv-topic" id="conv-topic">
+            <p class="conv-topic-label">Topic:</p>
+            <p class="conv-topic-text" id="conv-topic-text"></p>
+          </div>
+        </div>
+
+        <!-- Mic Button & Status -->
+        <div class="conv-mic-section">
+          <button class="btn btn-circle btn-speak" id="conv-speak" title="Speak">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+          <p class="mic-status-text" id="conv-mic-status">Tap to speak</p>
+        </div>
+
+        <!-- Score Breakdown Panel -->
+        <div class="score-breakdown" id="conv-score-breakdown" style="display:none;">
+          <h4>Score Breakdown</h4>
+          <div class="score-bar-row">
+            <span class="score-bar-label">Relevance</span>
+            <div class="score-bar-track">
+              <div class="score-bar-fill relevance" id="relevance-bar" style="width:0%"></div>
+            </div>
+            <span class="score-bar-value" id="relevance-value">0</span>
+          </div>
+          <div class="score-bar-row">
+            <span class="score-bar-label">Vocabulary</span>
+            <div class="score-bar-track">
+              <div class="score-bar-fill vocabulary" id="vocabulary-bar" style="width:0%"></div>
+            </div>
+            <span class="score-bar-value" id="vocabulary-value">0</span>
+          </div>
+          <div class="score-bar-row">
+            <span class="score-bar-label">Sentences</span>
+            <div class="score-bar-track">
+              <div class="score-bar-fill sentences" id="sentences-bar" style="width:0%"></div>
+            </div>
+            <span class="score-bar-value" id="sentences-value">0</span>
+          </div>
+          <div class="score-bar-row">
+            <span class="score-bar-label">Length</span>
+            <div class="score-bar-track">
+              <div class="score-bar-fill length" id="length-bar" style="width:0%"></div>
+            </div>
+            <span class="score-bar-value" id="length-value">0</span>
+          </div>
+        </div>
+
+        <!-- NPC Response Area -->
+        <div class="conv-npc-response" id="conv-npc-response" style="display:none;">
+          <div class="conv-npc-response-portrait" id="conv-npc-response-portrait"></div>
+          <p class="conv-npc-response-text" id="conv-npc-response-text"></p>
+        </div>
+
+        <!-- Follow-up Section -->
+        <div class="conv-followup" id="conv-followup" style="display:none;">
+          <p class="conv-followup-label">Follow-up:</p>
+          <p class="conv-followup-text" id="conv-followup-text"></p>
+        </div>
+
+        <!-- Result: Stars, XP, Gold -->
+        <div class="conv-result" id="conv-result" style="display:none;">
+          <div class="result-stars" id="conv-result-stars"></div>
+          <p class="result-xp" id="conv-result-xp"></p>
+          <p class="result-gold" id="conv-result-gold"></p>
+        </div>
+
+        <!-- Next Button -->
+        <button class="btn btn-primary" id="conv-next" style="display:none;">Next Topic</button>
       </div>
     </div>
 
-    <!-- ══════ WORD FORGE ══════ -->
-    <div id="screen-wordforge" class="screen">
-      <div class="game-header">
-        <button class="btn btn-back" id="wordforge-back">&#x2190; Map</button>
-        <h2>&#x2694;&#xFE0F; Word Forge</h2>
-        <div class="hearts" id="wordforge-hearts"></div>
-      </div>
-      <div class="game-area">
-        <div class="category-selector" id="wordforge-categories">
-          <button class="btn btn-diff active" data-cat="everyday">Everyday</button>
-          <button class="btn btn-diff" data-cat="business">Business</button>
-          <button class="btn btn-diff" data-cat="academic">Academic</button>
-          <button class="btn btn-diff" data-cat="idioms">Idioms</button>
-        </div>
-        <div class="challenge-card" id="wordforge-challenge">
-          <p class="challenge-instruction">Say the word that matches this definition:</p>
-          <div class="challenge-definition" id="wordforge-definition"></div>
-          <div class="challenge-hints" id="wordforge-hints">
-            <button class="btn btn-small btn-hint" id="wordforge-hint-btn">&#x1F4A1; Hint</button>
-            <p class="hint-text" id="wordforge-hint-text" style="display:none;"></p>
-          </div>
-          <div class="challenge-controls">
-            <button class="btn btn-circle btn-speak" id="wordforge-speak" title="Speak">&#x1F3A4;</button>
-          </div>
-          <div class="speech-result" id="wordforge-result" style="display:none;">
-            <p class="result-text" id="wordforge-result-text"></p>
-            <div class="result-stars" id="wordforge-result-stars"></div>
-            <p class="result-xp" id="wordforge-result-xp"></p>
-          </div>
-          <button class="btn btn-primary" id="wordforge-next" style="display:none;">Next Word</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ SPELL TOWER ══════ -->
-    <div id="screen-spelltower" class="screen">
-      <div class="game-header">
-        <button class="btn btn-back" id="spelltower-back">&#x2190; Map</button>
-        <h2>&#x1F9D9; Spell Tower</h2>
-        <div class="hearts" id="spelltower-hearts"></div>
-      </div>
-      <div class="game-area">
-        <div class="mode-selector" id="spelltower-modes">
-          <button class="btn btn-diff active" data-mode="scrambled">Unscramble</button>
-          <button class="btn btn-diff" data-mode="fillin">Fill in Blank</button>
-        </div>
-        <div class="challenge-card" id="spelltower-challenge">
-          <p class="challenge-instruction" id="spelltower-instruction">Speak the correct sentence:</p>
-          <div class="scrambled-words" id="spelltower-words"></div>
-          <div class="grammar-tag" id="spelltower-grammar"></div>
-          <div class="challenge-controls">
-            <button class="btn btn-circle btn-speak" id="spelltower-speak" title="Speak">&#x1F3A4;</button>
-          </div>
-          <div class="speech-result" id="spelltower-result" style="display:none;">
-            <p class="result-text" id="spelltower-result-text"></p>
-            <div class="result-stars" id="spelltower-result-stars"></div>
-            <p class="result-xp" id="spelltower-result-xp"></p>
-          </div>
-          <button class="btn btn-primary" id="spelltower-next" style="display:none;">Next Spell</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ THE ARENA ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         5. QUICK WIT ARENA
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-arena" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="arena-back">&#x2190; Map</button>
-        <h2>&#x1F3DF;&#xFE0F; The Arena</h2>
+        <button class="btn btn-back" id="arena-back">&larr; Map</button>
+        <h2>Quick Wit Arena</h2>
         <div class="arena-stats">
           <span class="arena-score">Score: <span id="arena-score">0</span></span>
           <span class="arena-combo" id="arena-combo"></span>
-          <span class="arena-timer">&#x23F1;&#xFE0F; <span id="arena-timer">60</span>s</span>
+          <span class="arena-timer">Time: <span id="arena-timer">60</span>s</span>
         </div>
       </div>
+
       <div class="game-area">
+        <!-- Start Panel -->
         <div class="arena-start" id="arena-start">
-          <h3>Speed Challenge!</h3>
-          <p>Answer as many questions as you can in 60 seconds!</p>
+          <h3>Timed Topics!</h3>
+          <p>Speak on as many topics as you can before time runs out!</p>
           <p>Build combos for bonus points!</p>
           <p class="arena-best">Personal Best: <span id="arena-best">0</span></p>
           <button class="btn btn-primary btn-lg" id="arena-go">Enter The Arena!</button>
         </div>
+
+        <!-- Active Challenge -->
         <div class="challenge-card" id="arena-challenge" style="display:none;">
           <div class="challenge-type-badge" id="arena-type-badge"></div>
           <div class="challenge-text arena-question" id="arena-question"></div>
           <div class="challenge-controls">
-            <button class="btn btn-circle btn-speak" id="arena-speak" title="Speak">&#x1F3A4;</button>
+            <button class="btn btn-circle btn-speak" id="arena-speak" title="Speak">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </button>
           </div>
           <div class="arena-feedback" id="arena-feedback" style="display:none;"></div>
         </div>
+
+        <!-- Results Panel -->
         <div class="arena-results" id="arena-results" style="display:none;">
           <h3>Arena Results!</h3>
           <div class="arena-final-score" id="arena-final-score"></div>
@@ -289,14 +325,17 @@
       </div>
     </div>
 
-    <!-- ══════ DRAGON'S LAIR ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         6. DRAGON'S LAIR
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-boss" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="boss-back">&#x2190; Map</button>
-        <h2>&#x1F409; Dragon's Lair</h2>
+        <button class="btn btn-back" id="boss-back">&larr; Map</button>
+        <h2>Dragon's Lair</h2>
       </div>
+
       <div class="game-area">
-        <!-- Boss Selection -->
+        <!-- Boss Selection Grid -->
         <div class="boss-selection" id="boss-selection">
           <h3>Choose Your Opponent</h3>
           <div class="boss-grid" id="boss-grid"></div>
@@ -314,22 +353,31 @@
                 <span class="hp-text" id="boss-hp-text">100/100</span>
               </div>
             </div>
-            <div class="battle-divider">&#x2694;&#xFE0F; VS &#x2694;&#xFE0F;</div>
+            <div class="battle-divider">VS</div>
             <div class="player-battle-info">
               <div class="hearts" id="boss-hearts"></div>
             </div>
           </div>
+
           <div class="boss-dialogue" id="boss-dialogue"></div>
+
           <div class="challenge-card" id="boss-challenge">
             <div class="challenge-text" id="boss-question"></div>
             <div class="challenge-controls">
-              <button class="btn btn-circle btn-speak" id="boss-speak" title="Speak">&#x1F3A4;</button>
+              <button class="btn btn-circle btn-speak" id="boss-speak" title="Speak">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+              </button>
             </div>
             <div class="battle-feedback" id="boss-feedback" style="display:none;"></div>
           </div>
         </div>
 
-        <!-- Boss Victory/Defeat -->
+        <!-- Boss Victory / Defeat -->
         <div class="boss-end" id="boss-end" style="display:none;">
           <div class="boss-end-icon" id="boss-end-icon"></div>
           <h3 id="boss-end-title"></h3>
@@ -340,47 +388,89 @@
       </div>
     </div>
 
-    <!-- ══════ THE TAVERN ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         7. THE TAVERN
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-tavern" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="tavern-back">&#x2190; Map</button>
-        <h2>&#x1F37A; The Tavern</h2>
+        <button class="btn btn-back" id="tavern-back">&larr; Map</button>
+        <h2>The Tavern</h2>
       </div>
+
       <div class="game-area">
-        <!-- NPC Selection -->
+        <!-- NPC Selection Grid -->
         <div class="tavern-npcs" id="tavern-npcs">
           <h3>Who would you like to talk to?</h3>
-          <div class="npc-grid" id="npc-grid"></div>
+          <div class="npc-grid" id="npc-grid">
+            <div class="npc-card" data-npc="innkeeper">
+              <div class="npc-portrait" id="npc-portrait-innkeeper"></div>
+              <h4>Innkeeper</h4>
+              <p>Friendly and warm</p>
+            </div>
+            <div class="npc-card" data-npc="merchant">
+              <div class="npc-portrait" id="npc-portrait-merchant"></div>
+              <h4>Merchant</h4>
+              <p>Shrewd and witty</p>
+            </div>
+            <div class="npc-card" data-npc="bard_npc">
+              <div class="npc-portrait" id="npc-portrait-bard_npc"></div>
+              <h4>Bard</h4>
+              <p>Poetic and dramatic</p>
+            </div>
+            <div class="npc-card" data-npc="elder_sage">
+              <div class="npc-portrait" id="npc-portrait-elder_sage"></div>
+              <h4>Elder Sage</h4>
+              <p>Wise and patient</p>
+            </div>
+          </div>
         </div>
 
-        <!-- Conversation -->
+        <!-- Conversation View -->
         <div class="tavern-conversation" id="tavern-conversation" style="display:none;">
+          <div class="conversation-header">
+            <button class="btn btn-small" id="tavern-npc-back">&larr; Back to NPCs</button>
+            <div class="tavern-npc-info">
+              <div class="tavern-npc-avatar" id="tavern-npc-avatar"></div>
+              <span class="tavern-npc-name" id="tavern-npc-name"></span>
+            </div>
+          </div>
           <div class="conversation-log" id="conversation-log"></div>
           <div class="conversation-input">
-            <button class="btn btn-circle btn-speak" id="tavern-speak" title="Speak">&#x1F3A4;</button>
+            <button class="btn btn-circle btn-speak" id="tavern-speak" title="Speak">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </button>
             <p class="speak-hint">Tap to respond</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ══════ SHOP ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         8. SHOP
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-shop" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="shop-back">&#x2190; Map</button>
-        <h2>&#x1F6CD;&#xFE0F; Ye Olde Shoppe</h2>
-        <div class="shop-gold">&#x1FA99; <span id="shop-gold">0</span></div>
+        <button class="btn btn-back" id="shop-back">&larr; Map</button>
+        <h2>Ye Olde Shoppe</h2>
+        <div class="shop-gold">Gold: <span id="shop-gold">0</span></div>
       </div>
       <div class="game-area">
         <div class="shop-grid" id="shop-grid"></div>
       </div>
     </div>
 
-    <!-- ══════ PROFILE ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         9. PROFILE
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-profile" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="profile-back">&#x2190; Map</button>
-        <h2>&#x1F464; Hero Profile</h2>
+        <button class="btn btn-back" id="profile-back">&larr; Map</button>
+        <h2>Hero Profile</h2>
       </div>
       <div class="game-area">
         <div class="profile-card">
@@ -425,30 +515,40 @@
       </div>
     </div>
 
-    <!-- ══════ DAILY QUESTS ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         10. DAILY QUESTS
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-quests" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="quests-back">&#x2190; Map</button>
-        <h2>&#x1F4DC; Daily Quests</h2>
+        <button class="btn btn-back" id="quests-back">&larr; Map</button>
+        <h2>Daily Quests</h2>
       </div>
       <div class="game-area">
         <div class="quests-list" id="quests-list"></div>
       </div>
     </div>
 
-    <!-- ══════ ACHIEVEMENTS ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         11. ACHIEVEMENTS
+         ══════════════════════════════════════════════════════════ -->
     <div id="screen-achievements" class="screen">
       <div class="game-header">
-        <button class="btn btn-back" id="achievements-back">&#x2190; Map</button>
-        <h2>&#x1F3C6; Achievements</h2>
+        <button class="btn btn-back" id="achievements-back">&larr; Map</button>
+        <h2>Achievements</h2>
       </div>
       <div class="game-area">
         <div class="achievements-grid" id="achievements-grid"></div>
       </div>
     </div>
 
-    <!-- ══════ FLOATING NOTIFICATIONS ══════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         12. OVERLAYS & NOTIFICATIONS
+         ══════════════════════════════════════════════════════════ -->
+
+    <!-- Floating Notifications -->
     <div id="notifications" class="notifications"></div>
+
+    <!-- Level Up Overlay -->
     <div id="level-up-overlay" class="overlay" style="display:none;">
       <div class="level-up-content">
         <div class="level-up-particles" id="level-up-particles"></div>
@@ -458,6 +558,8 @@
         <button class="btn btn-primary" id="level-up-dismiss">Continue</button>
       </div>
     </div>
+
+    <!-- Achievement Toast -->
     <div id="achievement-toast" class="achievement-toast" style="display:none;">
       <div class="achievement-toast-icon" id="achievement-toast-icon"></div>
       <div class="achievement-toast-info">
@@ -466,8 +568,15 @@
       </div>
     </div>
 
+    <!-- Mic Status Bar (bottom) -->
+    <div id="mic-status-bar" class="mic-status-bar" data-state="ready">
+      <div class="mic-status-indicator"></div>
+      <span class="mic-status-label">Ready</span>
+    </div>
+
   </div>
 
+  <script src="sprites.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
